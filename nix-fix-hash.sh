@@ -21,13 +21,13 @@ function info {
 
 function success {
     printf "\n%s%s%s\n" "${success_color}" "$1" "$reset_color"
-    nix store gc --store "${tmp_dir}" # cleanup
+    nix store gc --store "${tmp_dir}" > /dev/null # cleanup
     exit 0
 }
 
 function error {
     printf "\n%s%s%s\n" "${error_color}" "$1" "$reset_color"
-    nix store gc --store "${tmp_dir}" # cleanup
+    nix store gc --store "${tmp_dir}" &> /dev/null || true # cleanup
     exit 1
 }
 

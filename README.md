@@ -12,8 +12,10 @@ shell script that automatically fixes incorrect package hashes in nix flakes
 
 ```console
 foo@bar:~$ nix run github:spotdemo4/nix-fix-hash
+old hash: sha256-W3141wtpQ4OHrEV+2soKzSiMsFiCVeSShbpOFUASe84=
+new hash: sha256-qjjaGBRMA+CcqhOrQ0/5wSTQTazi4MQyDrT04NLREw0=
 
-build successful, no hash mismatch found
+updated hash in ./flake.nix
 ```
 
 - get it from a flake input:
