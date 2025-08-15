@@ -10,8 +10,10 @@ shell script that automatically fixes incorrect package hashes in nix flakes
 - just copy and paste the [shell script](/nix-fix-hash.sh)
 - download & run it immediately:
 
-```bash
-nix run github:spotdemo4/nix-fix-hash
+```console
+foo@bar:~$ nix run github:spotdemo4/nix-fix-hash
+
+build successful, no hash mismatch found
 ```
 
 - get it from a flake input:

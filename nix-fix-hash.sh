@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+tmp_dir="/tmp/nix-fix-hash"
+
 reset_color=""
 info_color=""
 success_color=""
@@ -19,11 +21,13 @@ function info {
 
 function success {
     printf "\n%s%s%s\n" "${success_color}" "$1" "$reset_color"
+    nix store gc --store "${tmp_dir}" # cleanup
     exit 0
 }
 
 function error {
     printf "\n%s%s%s\n" "${error_color}" "$1" "$reset_color"
+    nix store gc --store "${tmp_dir}" # cleanup
     exit 1
 }
 
@@ -34,7 +38,7 @@ elif [[ ! -f "$path/flake.nix" ]]; then
     error "file $path/flake.nix does not exist"
 fi
 
-if out=$(nix build "${1:-.}" --no-link 2>&1); then
+if out=$(nix build "${1:-.}" --store "${tmp_dir}" --no-link 2>&1); then
     success "build successful, no hash mismatch found"
 elif [[ ! "$out" =~ "hash mismatch" ]]; then
     error "build failed, but no hash mismatch found"
