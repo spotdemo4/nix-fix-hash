@@ -14,6 +14,6 @@ jobs:
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - uses: DeterminateSystems/nix-installer-action@90bb610b90bf290cad97484ba341453bd1cbefea # v19
-      - uses: spotdemo4/nix-simple-cache-action@76fef57d795c4576d5c139f8d584145f3faef783 # v1.4.4
+      - uses: spotdemo4/nix-simple-cache-action@1af7a0acccff9f9a8b11934e4c355ed9dbd12e87 # v1.4.7
 
       - run: nix flake check -L --accept-flake-config
