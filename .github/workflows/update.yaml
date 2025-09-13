@@ -16,7 +16,7 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@786fff0690178f1234e4e1fe9b536e94f5433196 # v20
       - uses: spotdemo4/nix-simple-cache-action@678b319b2d13680785ab65a0f5618a2e662ac04d # v1.4.8
 
-      - uses: actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b # v2.1.1
+      - uses: actions/create-github-app-token@def152b8a737443d7af6c5722c6389146fe90c90 # v2.1.2
         id: token
         with:
           app-id: ${{ vars.CLIENT_ID }}
