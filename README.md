@@ -18,6 +18,16 @@ new hash: sha256-qjjaGBRMA+CcqhOrQ0/5wSTQTazi4MQyDrT04NLREw0=
 updated hash in ./flake.nix
 ```
 
+- fix a specific output (other than the default one):
+
+```console
+foo@bar:~$ nix run github:spotdemo4/nix-fix-hash .#your-output
+old hash: sha256-YYT9piAioNzzkNRAhuH5UybLdvNJ0rItWzcku/BGr0g=
+new hash: sha256-YYT9piAioNzzkNRAhuH5UybLdvNJ0rItWzcku/BGr0k=
+
+updated hash in ./flake.nix
+```
+
 - get it from a flake input:
 
 ```nix
