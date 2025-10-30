@@ -66,7 +66,7 @@ if [[ -z "$new_hash" ]]; then
 fi
 info "new hash: $new_hash"
 
-if ! sed -i -e "s|${old_hash}|${new_hash}|g" "$path/flake.nix"; then
+if ! sed -i -e "s#${old_hash}#${new_hash}#g" "$path/flake.nix"; then
     error "failed to update hash in $path"
 fi
 
