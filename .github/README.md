@@ -1,34 +1,39 @@
 # Nix Hash Fixer
 
-[![check](https://img.shields.io/github/actions/workflow/status/spotdemo4/nix-fix-hash/check.yaml?logo=GitHub&logoColor=%23cdd6f4&label=check&labelColor=%2311111b)](https://github.com/spotdemo4/nix-fix-hash/actions/workflows/check.yaml)
-[![flake](https://img.shields.io/github/actions/workflow/status/spotdemo4/nix-fix-hash/flake.yaml?logo=nixos&logoColor=%2389dceb&label=flake&labelColor=%2311111b)](https://github.com/spotdemo4/nix-fix-hash/actions/workflows/flake.yaml)
+![check](https://github.com/spotdemo4/nix-fix-hash/actions/workflows/check.yaml/badge.svg?branch=main)
+![vulnerable](https://github.com/spotdemo4/nix-fix-hash/actions/workflows/vulnerable.yaml/badge.svg?branch=main)
 
-shell script that automatically fixes incorrect nix hashes
+script that automatically fixes incorrect nix hashes
+
+## Use
+
+Run `nix build` and fix all incorrect hashes:
+
+```elm
+nix run github:spotdemo4/nix-fix-hash
+```
+
+Fix a specific flake output:
+
+```elm
+nix run github:spotdemo4/nix-fix-hash .#output
+```
+
+Fix a specific file:
+
+```elm
+nix run github:spotdemo4/nix-fix-hash --file package.nix
+```
 
 ## Install
 
-- just copy and paste the [shell script](/nix-fix-hash.sh)
-- download & run it immediately:
+### Downloads
 
-```console
-foo@bar:~$ nix run github:spotdemo4/nix-fix-hash
-old hash: sha256-W3141wtpQ4OHrEV+2soKzSiMsFiCVeSShbpOFUASe84=
-new hash: sha256-qjjaGBRMA+CcqhOrQ0/5wSTQTazi4MQyDrT04NLREw0=
+#### [nix-fix-hash.sh](/nix-fix-hash.sh) - bash script
 
-updated hash in ./flake.nix
-```
+#### [nix-fix-hash-0.1.0.tar.xz](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.1.0/nix-fix-hash-0.1.0.tar.xz) - bundle with all dependencies
 
-- fix a specific output (other than the default one):
-
-```console
-foo@bar:~$ nix run github:spotdemo4/nix-fix-hash .#your-output
-old hash: sha256-YYT9piAioNzzkNRAhuH5UybLdvNJ0rItWzcku/BGr0g=
-new hash: sha256-YYT9piAioNzzkNRAhuH5UybLdvNJ0rItWzcku/BGr0k=
-
-updated hash in ./flake.nix
-```
-
-- get it from a flake input:
+### Nix
 
 ```nix
 inputs = {
@@ -50,3 +55,12 @@ outputs = { fixhash, ... }: {
 ```
 
 also available from the [nur](https://github.com/nix-community/NUR) as `repos.trev.nix-fix-hash`
+
+### Action
+
+```yaml
+- name: fix nix hashes
+  uses: spotdemo4/nix-fix-hash@v0.1.0
+  with:
+    args: .#package
+```
