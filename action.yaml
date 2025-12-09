@@ -1,0 +1,16 @@
+name: nix fix hash
+description: fix incorrect nix hashes
+author: trev
+
+inputs:
+  args:
+    description: Additional arguments to pass to nix-fix-hash
+    default: ""
+    required: false
+    type: string
+
+runs:
+  using: docker
+  image: docker://ghcr.io/spotdemo4/nix-fix-hash:0.0.1
+  env:
+    ARG_ENV: ${{ inputs.args }}

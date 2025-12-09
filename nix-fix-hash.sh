@@ -1,73 +1,162 @@
 #!/usr/bin/env bash
+# export PATH="${PATH}" placeholder
 
-tmp_dir="/tmp/nix-fix-hash"
+set -o errexit
+set -o nounset
+set -o pipefail
 
-reset_color=""
-info_color=""
-success_color=""
-error_color=""
-if colors=$(tput colors 2> /dev/null); then
-    if [ "$colors" -ge 256 ]; then
-        reset_color=$(tput sgr0)
-        info_color=$(tput setaf 189)
-        success_color=$(tput setaf 117)
-        error_color=$(tput setaf 211)
+IFS=' ' read -r -a ARG <<< "${ARG_ENV:-}"
+ARGS=( "${@}" "${ARG[@]}" )
+
+function print() {
+    echo "$1" >&2
+}
+
+function build() {
+    local store
+    local build_output
+    local build_code
+
+    if [[ -n "${DOCKER:-}" ]]; then
+        print "running (docker): nix build ${ARGS[*]}"
+
+        git config --global --add safe.directory "$(pwd)"
+
+        build_output=$(
+            nix build \
+                --extra-experimental-features "nix-command flakes" \
+                --accept-flake-config \
+                --no-link \
+                --no-warn-dirty \
+                "${ARGS[@]}" 2>&1
+        )
+        build_code=$?
+
+    else
+        print "running: nix build ${ARGS[*]}"
+
+        # use chroot store if not in container
+        store=$(mktemp -d)
+
+        build_output=$(
+            nix build \
+                --extra-experimental-features "nix-command flakes" \
+                --accept-flake-config \
+                --no-link \
+                --no-warn-dirty \
+                --store "${store}" \
+                "${ARGS[@]}" 2>&1
+        )
+        build_code=$?
+
+        # cleanup
+        chmod -R u+w "${store}"
+        rm -rf "${store}"
     fi
-fi
 
-function info {
-    printf "%s%s%s\n" "${info_color}" "$1" "$reset_color"
+    if [[ ${build_code} -eq 0 ]]; then
+        print "build successful"
+        exit 0
+    elif [[ ! "${build_output}" =~ "hash mismatch" ]]; then
+        print "build failed, but no hash mismatch found"
+        print "${build_output}"
+        exit 1
+    fi
+
+    echo "${build_output}"
 }
 
-function success {
-    printf "\n%s%s%s\n" "${success_color}" "$1" "$reset_color"
-    nix store gc --store "${tmp_dir}" > /dev/null # cleanup
-    exit 0
+function extract_old_hash() {
+    local build_output="$1"
+    local old_hash=""
+
+    if [[ ${build_output} =~ specified:[[:space:]]+([^[:space:]]+) ]]; then
+        old_hash="${BASH_REMATCH[1]}"
+    else
+        print "could not extract old hash"
+        exit 1
+    fi
+
+    if [[ -z "${old_hash}" ]]; then
+        print "no old hash found"
+        exit 1
+    fi
+
+    print "old hash: ${old_hash}"
+    echo "${old_hash}"
 }
 
-function error {
-    printf "\n%s%s%s\n" "${error_color}" "$1" "$reset_color"
-    nix store gc --store "${tmp_dir}" &> /dev/null || true # cleanup
-    exit 1
+function extract_new_hash() {
+    local build_output="$1"
+    local new_hash=""
+
+    if [[ ${build_output} =~ got:[[:space:]]+([^[:space:]]+) ]]; then
+        new_hash="${BASH_REMATCH[1]}"
+    else
+        print "could not extract new hash"
+        exit 1
+    fi
+
+    if [[ -z "${new_hash}" ]]; then
+        print "no new hash found"
+        exit 1
+    fi
+
+    print "new hash: ${new_hash}"
+    echo "${new_hash}"
 }
 
-path=$(dirname "${1:-.}")
-if [[ ! -d "$path" ]]; then
-    error "directory $path does not exist"
-elif [[ ! -f "$path/flake.nix" ]]; then
-    error "file $path/flake.nix does not exist"
-fi
+function find_nix_files() {
+    local old_hash="$1"
+    local nix_files=()
+    local files_with_hash=()
 
-if out=$(nix build "${1:-.}" --store "${tmp_dir}" --no-link 2>&1); then
-    success "build successful, no hash mismatch found"
-elif [[ ! "$out" =~ "hash mismatch" ]]; then
-    error "build failed, but no hash mismatch found"
-fi
+    readarray -d '' nix_files < <(find "$(pwd)" -type f -name "*.nix" -print0)
+    if [[ ${#nix_files[@]} -eq 0 ]]; then
+        print "no nix files found"
+        exit 1
+    fi
 
-old_hash=""
-if [[ $out =~ specified:[[:space:]]+([^[:space:]]+) ]]; then
-    old_hash="${BASH_REMATCH[1]}"
-else
-    error "could not extract old hash"
-fi
-if [[ -z "$old_hash" ]]; then
-    error "no old hash found"
-fi
-info "old hash: $old_hash"
+    for file in "${nix_files[@]}"; do
+        if grep -q "${old_hash}" "${file}"; then
+            files_with_hash+=("${file}")
+        fi
+    done
+    if [[ ${#files_with_hash[@]} -eq 0 ]]; then
+        print "no nix files found containing the old hash"
+        exit 1
+    fi
 
-new_hash=""
-if [[ $out =~ got:[[:space:]]+([^[:space:]]+) ]]; then
-    new_hash="${BASH_REMATCH[1]}"
-else
-    error "could not extract new hash"
-fi
-if [[ -z "$new_hash" ]]; then
-    error "no new hash found"
-fi
-info "new hash: $new_hash"
+    printf "%s\n" "${files_with_hash[@]}"
+}
 
-if ! sed -i -e "s#${old_hash}#${new_hash}#g" "$path/flake.nix"; then
-    error "failed to update hash in $path"
-fi
+function replace_hash() {
+    local file="$1"
+    local old_hash="$2"
+    local new_hash="$3"
 
-success "updated hash in $path/flake.nix"
+    if ! sd -F "${old_hash}" "${new_hash}" "${file}"; then
+        print "failed to update hash in ${file}"
+        exit 1
+    else
+        print "updated hash in ${file}"
+    fi
+}
+
+while true; do
+    build_output=$(build "$@")
+    if [[ -z "${build_output}" ]]; then
+        print "all hashes are up to date"
+        exit 0
+    fi
+
+    old_hash=$(extract_old_hash "${build_output}")
+    new_hash=$(extract_new_hash "${build_output}")
+    readarray -t files < <(find_nix_files "${old_hash}")
+
+    for file in "${files[@]}"; do
+        replace_hash "${file}" "${old_hash}" "${new_hash}"
+    done
+
+    print ""
+done

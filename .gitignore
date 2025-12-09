@@ -1,2 +1,7 @@
-/.direnv
+/.env
+/.envrc
+/docker-compose*
+
+# nix
 /result*
+/.direnv/

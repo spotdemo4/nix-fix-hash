@@ -1,11 +1,17 @@
 {
-	"editor.formatOnSave": true,
+  "editor.formatOnSave": true,
+  "files.associations": {
+    "renovate.json": "jsonc",
+    ".envrc.project": "shellscript"
+  },
 
-	// Nix
-	"nix.enableLanguageServer": true,
-	"nix.serverPath": "nixd",
-	"nix.formatterPath": "alejandra",
+  // nix
+  "nix.enableLanguageServer": true,
+  "nix.serverPath": "nixd",
+  "[nix]": {
+    "editor.defaultFormatter": "jnoortheen.nix-ide"
+  },
 
-	// Prettier
-	"editor.defaultFormatter": "esbenp.prettier-vscode"
+  // actions
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }

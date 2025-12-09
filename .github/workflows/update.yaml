@@ -2,7 +2,7 @@ name: update
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: "0 7-13 * * *" # once an hour from 07:00 to 13:00 UTC
   workflow_dispatch:
 
 permissions:
@@ -10,20 +10,18 @@ permissions:
 
 jobs:
   renovate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
-      - uses: DeterminateSystems/nix-installer-action@786fff0690178f1234e4e1fe9b536e94f5433196 # v20
-      - uses: spotdemo4/nix-simple-cache-action@b559f8e40714a57f02221dfe464f780a09df9e0e # v1.5.3
-
-      - uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
-        id: token
+      - name: Initialize
+        id: init
+        uses: spotdemo4/nix-init@0a2f62e3b132c09b144b6957976f538f79fc81a2 # v1.10.0
         with:
-          app-id: ${{ vars.CLIENT_ID }}
-          private-key: ${{ secrets.PRIVATE_KEY }}
+          app_id: ${{ vars.CLIENT_ID }}
+          app_key: ${{ secrets.PRIVATE_KEY }}
+          shell: update
 
       - name: Renovate
         env:
-          RENOVATE_CONFIG_FILE: .github/renovate-global.json
-          RENOVATE_TOKEN: ${{ steps.token.outputs.token }}
-        run: nix develop --accept-flake-config --command renovate
+          RENOVATE_CONFIG_FILE: .github/renovate.json
+          RENOVATE_TOKEN: ${{ steps.init.outputs.token }}
+        run: renovate

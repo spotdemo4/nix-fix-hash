@@ -2,18 +2,38 @@ name: check
 
 on:
   pull_request:
-    branches: ['main']
+    branches: ["main"]
+  push:
+    branches: ["main"]
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
 
 permissions:
   contents: read
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    if: ${{ ! startsWith(github.event.head_commit.message, 'bump:') }}
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
-      - uses: DeterminateSystems/nix-installer-action@786fff0690178f1234e4e1fe9b536e94f5433196 # v20
-      - uses: spotdemo4/nix-simple-cache-action@b559f8e40714a57f02221dfe464f780a09df9e0e # v1.5.3
+      - name: Initialize
+        uses: spotdemo4/nix-init@0a2f62e3b132c09b144b6957976f538f79fc81a2 # v1.10.0
 
-      - run: nix flake check -L --accept-flake-config
+      - name: Run checks
+        run: nix flake check
+
+  compare:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Initialize
+        uses: spotdemo4/nix-init@0a2f62e3b132c09b144b6957976f538f79fc81a2 # v1.10.0
+        with:
+          shell: check
+
+      - name: Fix hashes in bad.nix
+        run: nix-fix-hash --file tests/bad.nix
+
+      - name: Compare bad.nix with good.nix
+        run: diff -u tests/good.nix tests/bad.nix
