@@ -7,7 +7,6 @@ inputs:
     description: Additional arguments to pass to nix-fix-hash
     default: ""
     required: false
-    type: string
 
 runs:
   using: docker
