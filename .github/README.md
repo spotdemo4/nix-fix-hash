@@ -31,7 +31,7 @@ nix run github:spotdemo4/nix-fix-hash --file package.nix
 
 #### [nix-fix-hash.sh](/nix-fix-hash.sh) - bash script
 
-#### [nix-fix-hash-0.1.0.tar.xz](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.1.0/nix-fix-hash-0.1.0.tar.xz) - bundle with all dependencies
+#### [nix-fix-hash-0.1.1.tar.xz](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.1.1/nix-fix-hash-0.1.1.tar.xz) - bundle with all dependencies
 
 ### Nix
 
@@ -60,7 +60,7 @@ also available from the [nur](https://github.com/nix-community/NUR) as `repos.tr
 
 ```yaml
 - name: fix nix hashes
-  uses: spotdemo4/nix-fix-hash@v0.1.0
+  uses: spotdemo4/nix-fix-hash@v0.1.1
   with:
     arguments: .#package
 ```

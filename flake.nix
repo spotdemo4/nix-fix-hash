@@ -134,7 +134,7 @@
         packages = {
           default = pkgs.stdenv.mkDerivation (finalAttrs: {
             pname = "nix-fix-hash";
-            version = "0.1.0";
+            version = "0.1.1";
 
             src = builtins.path {
               name = "root";
