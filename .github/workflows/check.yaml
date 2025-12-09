@@ -25,6 +25,7 @@ jobs:
         run: nix flake check
 
   compare:
+    if: ${{ ! startsWith(github.event.head_commit.message, 'bump:') }}
     runs-on: ubuntu-24.04
     steps:
       - name: Initialize
