@@ -17,8 +17,8 @@ function build() {
     local build_output
     local build_code
 
-    if [[ -n "${DOCKER:-}" ]]; then
-        print "running (docker): nix build ${ARGS[*]}"
+    if [[ -n "${DOCKER:-}" || -n "${CI:-}" ]]; then
+        print "running (ci): nix build ${ARGS[*]}"
 
         git config --global --add safe.directory "$(pwd)"
 
