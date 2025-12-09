@@ -38,17 +38,17 @@ nix run github:spotdemo4/nix-fix-hash --file package.nix
 ```nix
 inputs = {
     # ...
-    fixhash = {
+    fix-hash = {
         url = "github:spotdemo4/nix-fix-hash";
         inputs.nixpkgs.follows = "nixpkgs";
     };
 };
 
-outputs = { fixhash, ... }: {
+outputs = { fix-hash, ... }: {
     # ...
     devShells."${system}".default = pkgs.mkShell {
-        packages = with pkgs; [
-            fixhash."${system}".default
+        packages = [
+            fix-hash."${system}".default
         ];
     };
 }

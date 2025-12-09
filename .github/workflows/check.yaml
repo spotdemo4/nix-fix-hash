@@ -24,7 +24,8 @@ jobs:
       - name: Run checks
         run: nix flake check
 
-  compare:
+  compare-devshell:
+    name: compare (devshell)
     if: ${{ ! startsWith(github.event.head_commit.message, 'bump:') }}
     runs-on: ubuntu-24.04
     steps:
@@ -35,6 +36,22 @@ jobs:
 
       - name: Fix hashes in bad.nix
         run: nix-fix-hash --file tests/bad.nix
+
+      - name: Compare bad.nix with good.nix
+        run: diff -u tests/good.nix tests/bad.nix
+
+  compare-docker:
+    name: compare (docker)
+    if: ${{ ! startsWith(github.event.head_commit.message, 'bump:') }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Initialize
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - name: Fix hashes in bad.nix
+        uses: spotdemo4/nix-fix-hash@a7a4459214b5203af187aaece73bc0ffd451c011 # v0.1.0
+        with:
+          args: "--file tests/bad.nix"
 
       - name: Compare bad.nix with good.nix
         run: diff -u tests/good.nix tests/bad.nix
