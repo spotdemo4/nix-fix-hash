@@ -3,7 +3,7 @@ description: fix incorrect nix hashes
 author: trev
 
 inputs:
-  args:
+  arguments:
     description: Additional arguments to pass to nix-fix-hash
     default: ""
     required: false
@@ -12,4 +12,4 @@ runs:
   using: docker
   image: docker://ghcr.io/spotdemo4/nix-fix-hash:0.1.0
   env:
-    ARG_ENV: ${{ inputs.args }}
+    ARG_ENV: ${{ inputs.arguments }}

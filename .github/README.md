@@ -62,5 +62,5 @@ also available from the [nur](https://github.com/nix-community/NUR) as `repos.tr
 - name: fix nix hashes
   uses: spotdemo4/nix-fix-hash@v0.1.0
   with:
-    args: .#package
+    arguments: .#package
 ```

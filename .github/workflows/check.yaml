@@ -51,7 +51,7 @@ jobs:
       - name: Fix hashes in bad.nix
         uses: spotdemo4/nix-fix-hash@a7a4459214b5203af187aaece73bc0ffd451c011 # v0.1.0
         with:
-          args: "--file tests/bad.nix"
+          arguments: --file tests/bad.nix
 
       - name: Compare bad.nix with good.nix
         run: diff -u tests/good.nix tests/bad.nix
