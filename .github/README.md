@@ -7,7 +7,7 @@ script that automatically fixes incorrect nix hashes
 
 ## Use
 
-Run `nix build` and fix all incorrect hashes:
+Run `nix build` and fix all incorrect hashes encountered:
 
 ```elm
 nix run github:spotdemo4/nix-fix-hash
@@ -63,4 +63,10 @@ also available from the [nur](https://github.com/nix-community/NUR) as `repos.tr
   uses: spotdemo4/nix-fix-hash@v0.1.1
   with:
     arguments: .#package
+```
+
+### Docker
+
+```elm
+docker run --rm -v "$(pwd):/app" -w /app nix-fix-hash:0.1.1
 ```

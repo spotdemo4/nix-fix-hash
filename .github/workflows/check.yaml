@@ -49,7 +49,7 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Fix hashes in bad.nix
-        uses: spotdemo4/nix-fix-hash@a7a4459214b5203af187aaece73bc0ffd451c011 # v0.1.0
+        uses: spotdemo4/nix-fix-hash@9d7e396cd940e50a7ff57d97e4fcc6eeab8b7b19 # v0.1.1
         with:
           arguments: --file tests/bad.nix
 
