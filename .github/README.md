@@ -68,5 +68,5 @@ also available from the [nur](https://github.com/nix-community/NUR) as `repos.tr
 ### Docker
 
 ```elm
-docker run --rm -v "$(pwd):/app" -w /app nix-fix-hash:0.1.1
+docker run --rm -v "$(pwd):/app" -w /app ghcr.io/spotdemo4/nix-fix-hash:0.1.1
 ```
