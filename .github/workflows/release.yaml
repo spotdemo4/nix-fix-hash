@@ -28,12 +28,12 @@ jobs:
     steps:
       - name: Checkout
         id: checkout
-        uses: spotdemo4/better-checkout@eaec73409dbe842ad8446ee818976878b0e9108d # v0.0.2
+        uses: spotdemo4/better-checkout@47df133e9f043cd08660fed5a09b6c20232ce909 # v0.2.0
         with:
           app-id: ${{ vars.CLIENT_ID }}
           private-key: ${{ secrets.PRIVATE_KEY }}
 
       - name: Release
-        uses: spotdemo4/nix-flake-release@af7259a68ea30d029220a19eea905da0eca80c1b # v0.4.4
+        uses: spotdemo4/nix-flake-release@fdab276653866800918aad7737f71f21b2cfc156 # v0.8.3
         with:
           github_token: ${{ steps.checkout.outputs.token }}
