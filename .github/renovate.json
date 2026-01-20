@@ -5,15 +5,14 @@
   "onboarding": false,
   "requireConfig": "ignored",
   "platform": "github",
-  "repositories": ["spotdemo4/nix-flake-release"],
+  "repositories": ["spotdemo4/nix-fix-hash"],
 
   // repository
   "extends": ["config:recommended"],
-  "branchPrefix": "renovate/",
-  "dependencyDashboardTitle": "Dependency Dashboard",
   "lockFileMaintenance": {
     "enabled": true,
-    "automerge": true
+    "automerge": true,
+    "schedule": ["* * * * 0"] // sunday
   },
   "nix": {
     "enabled": true

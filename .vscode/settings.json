@@ -13,5 +13,5 @@
   },
 
   // actions
-  "editor.defaultFormatter": "esbenp.prettier-vscode"
+  "editor.defaultFormatter": "prettier.prettier-vscode"
 }
