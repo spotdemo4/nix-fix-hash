@@ -34,6 +34,7 @@
           overlays = [
             trev.overlays.packages
             trev.overlays.libs
+            trev.overlays.images
           ];
         };
       in
