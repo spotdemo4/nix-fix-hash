@@ -32,6 +32,7 @@ jobs:
         with:
           app-id: ${{ vars.CLIENT_ID }}
           private-key: ${{ secrets.PRIVATE_KEY }}
+          fetch-depth: 0
 
       - name: Release
         uses: spotdemo4/nix-flake-release@fdab276653866800918aad7737f71f21b2cfc156 # v0.8.3

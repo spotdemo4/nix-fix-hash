@@ -27,9 +27,9 @@ jobs:
       - name: Checkout
         uses: spotdemo4/better-checkout@47df133e9f043cd08660fed5a09b6c20232ce909 # v0.2.0
         with:
-          fetch-depth: 0
           app-id: ${{ vars.CLIENT_ID }}
           private-key: ${{ secrets.PRIVATE_KEY }}
+          fetch-depth: 0
 
       - name: Bump
         uses: spotdemo4/bumper@e8659fbaa31ae215afaf6d2e07cc0e32180b3708 # v0.8.2

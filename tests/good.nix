@@ -29,7 +29,7 @@ let
   };
 in
 pkgs.linkFarm "tests" (
-  builtins.map (i: {
+  map (i: {
     name = i.name;
     path = i.value;
   }) (pkgs.lib.attrsToList tests)
