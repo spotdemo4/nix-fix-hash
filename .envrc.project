@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 # for direnv (https://direnv.net/)
 # create a .envrc symlink to this file or copy its contents to .envrc
 # run `direnv allow` to enable

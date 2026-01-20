@@ -1,7 +1,7 @@
 # Nix Hash Fixer
 
-![check](https://github.com/spotdemo4/nix-fix-hash/actions/workflows/check.yaml/badge.svg?branch=main)
-![vulnerable](https://github.com/spotdemo4/nix-fix-hash/actions/workflows/vulnerable.yaml/badge.svg?branch=main)
+[![check](https://github.com/spotdemo4/nix-fix-hash/actions/workflows/check.yaml/badge.svg?branch=main)](https://github.com/spotdemo4/nix-fix-hash/actions/workflows/check.yaml)
+[![vulnerable](https://github.com/spotdemo4/nix-fix-hash/actions/workflows/vulnerable.yaml/badge.svg?branch=main)](https://github.com/spotdemo4/nix-fix-hash/actions/workflows/vulnerable.yaml)
 
 script that automatically fixes incorrect nix hashes
 
