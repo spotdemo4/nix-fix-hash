@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Initialize
-        uses: spotdemo4/nix-init@6447eadb209b3c4a48125db0307d59f35ec9230c # v1.20.0
+        uses: spotdemo4/nix-init@89cc283b1be6b8da56618c5737c0389b35b46ac3 # v1.21.3
 
       - name: Check
         run: nix flake check
