@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Initialize
-        uses: spotdemo4/nix-init@ed84640dc773603827ade8ecfd81c535733130ac # v1.21.4
+        uses: spotdemo4/nix-init@842337cdd1a41ced81cb88edfd632589ee53ad2d # v1.22.0
 
       - name: Check
         run: nix flake check
@@ -28,13 +28,13 @@ jobs:
     steps:
       - name: Checkout
         id: checkout
-        uses: spotdemo4/better-checkout@b5c8c788dc5653b255e55658e8c2910b62c5f13b # v0.4.0
+        uses: spotdemo4/better-checkout@9a8cc716065857724440d98bc9b2bc08be8ab4bd # v0.5.0
         with:
           app-id: ${{ vars.CLIENT_ID }}
           private-key: ${{ secrets.PRIVATE_KEY }}
           fetch-depth: 0
 
       - name: Release
-        uses: spotdemo4/nix-flake-release@a3bf9899f50d770f7fa5700408201f94ab25dbaa # v0.9.4
+        uses: spotdemo4/nix-flake-release@4a6016519cce596af8a54136bcd2fb4de019c33f # v0.11.1
         with:
           github_token: ${{ steps.checkout.outputs.token }}
