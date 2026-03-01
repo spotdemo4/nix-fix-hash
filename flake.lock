@@ -48,11 +48,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1772270575,
-        "narHash": "sha256-u0hu6KK5bgEw0g3Zo7KGDQWGn9jn6Pa7Wmx5MXa15Vw=",
+        "lastModified": 1772357879,
+        "narHash": "sha256-IIkRLCZg2Y1OJ62KwWtZBMBB9N2fvmCxIwcSx7FSUJ8=",
         "owner": "spotdemo4",
         "repo": "nur",
-        "rev": "c7703efbab428328f2a1f977d49336307f7c0b41",
+        "rev": "4edd91af2ceefd4fbcf128d16b166aeb97ea15d9",
         "type": "github"
       },
       "original": {
