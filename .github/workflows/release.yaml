@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Initialize
-        uses: spotdemo4/nix-init@369737c1af5db893f0dc4108a99ebb50133340e8 # v1.38.0
+        uses: spotdemo4/nix-init@468df9f0e52570a28a9368f4eaee60a8d3847f66 # v1.39.0
 
       - name: Check
         run: nix flake check
@@ -35,6 +35,6 @@ jobs:
           fetch-depth: 0
 
       - name: Release
-        uses: spotdemo4/nix-flake-release@f1a3e206978a7827ac557564507710caf0e91e37 # v0.12.1
+        uses: spotdemo4/nix-flake-release@926a38ad6690de9206f761e4fcb795fef2bd95b3 # v0.13.0
         with:
           github_token: ${{ steps.checkout.outputs.token }}
