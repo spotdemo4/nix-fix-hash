@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   check:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Initialize
         uses: spotdemo4/nix-init@32b128f67703e246a0895d72d65ae455bf38d559 # v1.41.0
@@ -24,10 +24,10 @@ jobs:
 
   release:
     needs: check
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        id: checkout
+      - id: checkout
+        name: Checkout
         uses: spotdemo4/better-checkout@347527b6a5b1c1dba59ad3b66f68b9b0835cb740 # v0.8.0
         with:
           app-id: ${{ vars.CLIENT_ID }}
@@ -35,6 +35,8 @@ jobs:
           fetch-depth: 0
 
       - name: Release
-        uses: spotdemo4/nix-flake-release@7640bfccc63c2e2540211a5d48667138d70ff4e6 # v0.14.3
+        uses: spotdemo4/flake-release@7640bfccc63c2e2540211a5d48667138d70ff4e6 # v0.14.3
         with:
           github_token: ${{ steps.checkout.outputs.token }}
+          packages: |
+            images.x86_64-linux.default

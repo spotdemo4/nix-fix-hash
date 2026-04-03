@@ -22,7 +22,7 @@ permissions:
 
 jobs:
   bump:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: spotdemo4/better-checkout@347527b6a5b1c1dba59ad3b66f68b9b0835cb740 # v0.8.0

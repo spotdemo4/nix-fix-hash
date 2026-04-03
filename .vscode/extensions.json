@@ -2,6 +2,6 @@
   "recommendations": [
     "timonwong.shellcheck",
     "jnoortheen.nix-ide",
-    "prettier.prettier-vscode"
+    "esbenp.prettier-vscode"
   ]
 }

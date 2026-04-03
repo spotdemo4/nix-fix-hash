@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   nix:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Initialize
         uses: spotdemo4/nix-init@32b128f67703e246a0895d72d65ae455bf38d559 # v1.41.0
@@ -21,7 +21,7 @@ jobs:
         run: flake-checker -f
 
   actions:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Initialize
         uses: spotdemo4/nix-init@32b128f67703e246a0895d72d65ae455bf38d559 # v1.41.0

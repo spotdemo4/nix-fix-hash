@@ -10,10 +10,10 @@ permissions:
 
 jobs:
   renovate:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
-      - name: Initialize
-        id: init
+      - id: init
+        name: Initialize
         uses: spotdemo4/nix-init@32b128f67703e246a0895d72d65ae455bf38d559 # v1.41.0
         with:
           app_id: ${{ vars.CLIENT_ID }}
