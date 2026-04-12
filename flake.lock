@@ -2,11 +2,11 @@
   "nodes": {
     "nixpkgs": {
       "locked": {
-        "lastModified": 1775126147,
-        "narHash": "sha256-J0dZU4atgcfo4QvM9D92uQ0Oe1eLTxBVXjJzdEMQpD0=",
+        "lastModified": 1775888245,
+        "narHash": "sha256-nwASzrRDD1JBEu/o8ekKYEXm/oJW6EMCzCRdrwcLe90=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "8d8c1fa5b412c223ffa47410867813290cdedfef",
+        "rev": "13043924aaa7375ce482ebe2494338e058282925",
         "type": "github"
       },
       "original": {
@@ -25,11 +25,11 @@
     },
     "schema": {
       "locked": {
-        "lastModified": 1773853635,
-        "narHash": "sha256-4VHWij4EWNqy1iZr6OxNB6cuv5tDjMwAL/J1SBLFU2Q=",
+        "lastModified": 1775244557,
+        "narHash": "sha256-iYXRXIX9eafJmwJFAhqT3YxvvpNRuPFSLRCSpvGh8Ic=",
         "owner": "DeterminateSystems",
         "repo": "flake-schemas",
-        "rev": "19686d6f3da8d4db959523f32eb1b50de9f18301",
+        "rev": "15edbeeaf77e42216dbcba8bfd907fdeabb75a2b",
         "type": "github"
       },
       "original": {
@@ -64,11 +64,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1775389363,
-        "narHash": "sha256-auxi891YZAqobkcgnIx8xXGx4WgXhZQcgLoSjj3YG/8=",
+        "lastModified": 1775900287,
+        "narHash": "sha256-/ng/xIYzoSR4hZUg+6MAnUY0zr9Vkr/IT7Ju/pU/+8w=",
         "owner": "spotdemo4",
         "repo": "nur",
-        "rev": "7a1bb5742d53cafd0d878cd2d4f5f57f7c8ece9d",
+        "rev": "17b02ac6c769eb6721362c63f5921973f10d0139",
         "type": "github"
       },
       "original": {
