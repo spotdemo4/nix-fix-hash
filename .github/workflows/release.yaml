@@ -35,7 +35,7 @@ jobs:
           fetch-depth: 0
 
       - name: Release
-        uses: spotdemo4/flake-release@80de44b91ad7a876d755e8293e93ad990656c829 # v0.14.5
+        uses: spotdemo4/flake-release@788bb29383619c68fed69d2f8d15020d827e94a1 # v0.14.6
         with:
           github_token: ${{ steps.checkout.outputs.token }}
           packages: |
