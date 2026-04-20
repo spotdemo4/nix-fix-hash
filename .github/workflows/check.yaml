@@ -47,6 +47,8 @@ jobs:
     steps:
       - name: Initialize
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Fix hashes in bad.nix
         uses: spotdemo4/nix-fix-hash@9d7e396cd940e50a7ff57d97e4fcc6eeab8b7b19 # v0.1.1

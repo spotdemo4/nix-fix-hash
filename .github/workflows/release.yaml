@@ -10,7 +10,7 @@ concurrency:
 
 permissions:
   contents: read
-  packages: write
+  packages: read
 
 jobs:
   check:
@@ -25,6 +25,9 @@ jobs:
   release:
     needs: check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - id: checkout
         name: Checkout

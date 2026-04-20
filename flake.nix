@@ -71,7 +71,7 @@
         checks = pkgs.mkChecks {
           bash = {
             src = self.packages.${system}.default;
-            deps = with pkgs; [
+            packages = with pkgs; [
               shellcheck
             ];
             script = ''
@@ -81,21 +81,21 @@
 
           actions = {
             root = ./.;
-            fileset = ./.github/workflows;
-            deps = with pkgs; [
+            files = ./.github/workflows;
+            packages = with pkgs; [
               action-validator
-              octoscan
+              zizmor
             ];
             forEach = ''
               action-validator "$file"
-              octoscan scan "$file"
+              zizmor --offline "$file"
             '';
           };
 
           renovate = {
             root = ./.github;
-            fileset = ./.github/renovate.json;
-            deps = with pkgs; [
+            files = ./.github/renovate.json;
+            packages = with pkgs; [
               renovate
             ];
             script = ''
@@ -106,7 +106,7 @@
           nix = {
             root = ./.;
             filter = file: file.hasExt "nix";
-            deps = with pkgs; [
+            packages = with pkgs; [
               nixfmt
             ];
             forEach = ''
@@ -117,7 +117,7 @@
           prettier = {
             root = ./.;
             filter = file: file.hasExt "yaml" || file.hasExt "json" || file.hasExt "md";
-            deps = with pkgs; [
+            packages = with pkgs; [
               prettier
             ];
             forEach = ''
@@ -126,8 +126,8 @@
           };
         };
 
-        packages = with pkgs.lib; {
-          default = pkgs.stdenv.mkDerivation (finalAttrs: {
+        packages.default = pkgs.stdenv.mkDerivation (
+          final: with pkgs.lib; {
             pname = "nix-fix-hash";
             version = "0.1.1";
 
@@ -149,7 +149,7 @@
 
             configurePhase = ''
               sed -i '1c\#!${pkgs.runtimeShell}' nix-fix-hash.sh
-              sed -i '2c\export PATH="${makeBinPath finalAttrs.runtimeInputs}:$PATH"' nix-fix-hash.sh
+              sed -i '2c\export PATH="${makeBinPath final.runtimeInputs}:$PATH"' nix-fix-hash.sh
             '';
 
             installPhase = ''
@@ -165,16 +165,15 @@
               license = licenses.mit;
               platforms = platforms.all;
               homepage = "https://github.com/spotdemo4/nix-fix-hash";
-              changelog = "https://github.com/spotdemo4/nix-fix-hash/releases/tag/v${finalAttrs.version}";
+              changelog = "https://github.com/spotdemo4/nix-fix-hash/releases/tag/v${final.version}";
             };
-          });
-        };
+          }
+        );
 
-        images = {
-          default = pkgs.mkImage self.packages.${system}.default {
-            fromImage = pkgs.image.nix;
-            contents = with pkgs; [ dockerTools.caCertificates ];
-          };
+        images.default = pkgs.mkImage {
+          fromImage = pkgs.image.nix;
+          src = self.packages.${system}.default;
+          contents = with pkgs; [ dockerTools.caCertificates ];
         };
 
         formatter = pkgs.nixfmt-tree;
