@@ -28,5 +28,5 @@ jobs:
         with:
           shell: vulnerable
 
-      - name: Run octoscan
-        run: octoscan scan .github
+      - name: Run zizmor
+        run: zizmor .github

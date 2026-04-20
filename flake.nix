@@ -63,7 +63,7 @@
           vulnerable = pkgs.mkShell {
             packages = with pkgs; [
               flake-checker # nix
-              octoscan # actions
+              zizmor # actions
             ];
           };
         };
