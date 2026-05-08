@@ -1,23 +1,47 @@
 {
+  "editor.defaultFormatter": "oxc.oxc-vscode",
   "editor.formatOnSave": true,
   "files.associations": {
     "renovate.json": "jsonc",
     ".envrc.project": "dotenv",
     ".envrc": "dotenv"
   },
+  "explorer.fileNesting.patterns": {
+    ".envrc.project": ".envrc",
+    "flake.nix": "flake.lock,treefmt.toml",
+    "README.md": "*.md,LICENSE"
+  },
+  "json.schemaDownload.trustedDomains": {
+    "https://docs.renovatebot.com/": true
+  },
+  "chat.tools.terminal.autoApprove": {
+    // rust
+    "cargo build": true,
+    "cargo check": true,
+    "cargo clippy": true,
+
+    // nix
+    "nix fmt": true,
+    "nix build": true,
+    "nix flake check": true
+  },
+
+  // rust
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer"
+  },
 
   // nix
   "nix.enableLanguageServer": true,
   "nix.serverPath": "nixd",
+  "nix.serverSettings": {
+    "nixd": {
+      "nixpkgs": {
+        "expr": "(builtins.getFlake (builtins.toString ./.)).outputs.nixpkgs.${builtins.currentSystem}"
+      }
+    }
+  },
   "[nix]": {
     "editor.defaultFormatter": "jnoortheen.nix-ide"
-  },
-
-  // json
-  "json.schemaDownload.trustedDomains": {
-    "https://docs.renovatebot.com/": true
-  },
-
-  // actions
-  "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

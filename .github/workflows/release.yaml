@@ -10,36 +10,55 @@ concurrency:
 
 permissions:
   contents: read
-  packages: read
 
 jobs:
-  check:
+  linux:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      packages: write
     steps:
       - name: Initialize
         uses: spotdemo4/nix-init@b0b33f024c18fa92f42f732e2e2001de507210cd # v1.45.0
+        with:
+          fetch_depth: 0
+          shell: release
 
-      - name: Check
-        run: nix flake check
+      - name: Release to GitHub
+        run: flake-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGES: |
+            packages.x86_64-linux.default.aarch64-unknown-linux-musl
+            packages.x86_64-linux.default.armv7l-unknown-linux-musleabihf
+            packages.x86_64-linux.default.x86_64-unknown-linux-musl
+            packages.x86_64-linux.default.x86_64-w64-mingw32
+            images.x86_64-linux.default.aarch64-unknown-linux-musl
+            images.x86_64-linux.default.armv7l-unknown-linux-musleabihf
+            images.x86_64-linux.default.x86_64-unknown-linux-musl
 
-  release:
-    needs: check
-    runs-on: ubuntu-latest
+      - name: Release to FlakeHub
+        uses: DeterminateSystems/flakehub-push@71f57208810a5d299fc6545350981de98fdbc860 # v6
+        with:
+          visibility: public
+
+  darwin:
+    runs-on: macos-latest
     permissions:
-      contents: read
-      packages: write
+      id-token: write
+      contents: write
     steps:
-      - id: checkout
-        name: Checkout
-        uses: spotdemo4/better-checkout@a08be04e9f594479a4ac25b1a67d707190dd619e # v0.10.0
+      - name: Initialize
+        uses: spotdemo4/nix-init@b0b33f024c18fa92f42f732e2e2001de507210cd # v1.45.0
         with:
-          app-id: ${{ vars.CLIENT_ID }}
-          private-key: ${{ secrets.PRIVATE_KEY }}
-          fetch-depth: 0
+          fetch_depth: 0
+          shell: release
 
-      - name: Release
-        uses: spotdemo4/flake-release@e691b3c1a9b2a5c329bdd1566c60facedcc9581f # v0.15.0
-        with:
-          github_token: ${{ steps.checkout.outputs.token }}
-          packages: |
-            images.x86_64-linux.default
+      - name: Release to GitHub
+        run: flake-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGES: |
+            packages.aarch64-darwin.default.arm64-apple-darwin
+            packages.aarch64-darwin.default.x86_64-apple-darwin

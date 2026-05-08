@@ -15,45 +15,12 @@ permissions:
 
 jobs:
   check:
-    if: ${{ ! startsWith(github.event.head_commit.message, 'bump:') }}
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     steps:
       - name: Initialize
         uses: spotdemo4/nix-init@b0b33f024c18fa92f42f732e2e2001de507210cd # v1.45.0
 
-      - name: Run checks
+      - name: Check
         run: nix flake check
-
-  compare-devshell:
-    name: compare (devshell)
-    if: ${{ ! startsWith(github.event.head_commit.message, 'bump:') }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Initialize
-        uses: spotdemo4/nix-init@b0b33f024c18fa92f42f732e2e2001de507210cd # v1.45.0
-        with:
-          shell: check
-
-      - name: Fix hashes in bad.nix
-        run: nix-fix-hash --file tests/bad.nix
-
-      - name: Compare bad.nix with good.nix
-        run: diff -u tests/good.nix tests/bad.nix
-
-  compare-docker:
-    name: compare (docker)
-    if: ${{ ! startsWith(github.event.head_commit.message, 'bump:') }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Initialize
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-
-      - name: Fix hashes in bad.nix
-        uses: spotdemo4/nix-fix-hash@9d7e396cd940e50a7ff57d97e4fcc6eeab8b7b19 # v0.1.1
-        with:
-          arguments: --file tests/bad.nix
-
-      - name: Compare bad.nix with good.nix
-        run: diff -u tests/good.nix tests/bad.nix

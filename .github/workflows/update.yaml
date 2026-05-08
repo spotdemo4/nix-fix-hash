@@ -2,7 +2,7 @@ name: update
 
 on:
   schedule:
-    - cron: "0 7-13 * * *" # once an hour from 07:00 to 13:00 UTC
+    - cron: "0 9 * * *" # every day at 09:00 UTC
   workflow_dispatch:
 
 permissions:
@@ -11,6 +11,8 @@ permissions:
 jobs:
   renovate:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     steps:
       - id: init
         name: Initialize
@@ -21,7 +23,8 @@ jobs:
           shell: update
 
       - name: Renovate
+        run: renovate
         env:
           RENOVATE_CONFIG_FILE: .github/renovate.json
           RENOVATE_TOKEN: ${{ steps.init.outputs.token }}
-        run: renovate
+          LOG_LEVEL: ${{ runner.debug == '1' && 'debug' || 'info' }}

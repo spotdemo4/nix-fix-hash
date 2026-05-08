@@ -1,5 +1,5 @@
 {
-  description = "nix hash fixer";
+  description = "Nix hash fixer";
 
   nixConfig = {
     extra-substituters = [
@@ -28,35 +28,53 @@
     }:
     trev.libs.mkFlake (
       system: pkgs: {
+
+        # nix develop [#...]
         devShells = {
           default = pkgs.mkShell {
+            RUST_SRC_PATH = pkgs.rustPlatform.rustLibSrc;
+            shellHook = pkgs.shellhook.ref;
             packages = with pkgs; [
+              # rust
+              rustc
+              cargo
+
               # deps
-              mktemp
-              sd
+              nix
 
               # lint
-              shellcheck
+              clippy
+              cargo-audit
+              nixd
+              nil
 
               # format
+              rustfmt
               nixfmt
-              prettier
+              oxfmt
+              treefmt
 
               # util
               bumper
             ];
-            shellHook = pkgs.shellhook.ref;
           };
 
-          check = pkgs.mkShell {
-            packages = [
-              self.packages.${system}.default
+          bump = pkgs.mkShell {
+            packages = with pkgs; [
+              bumper
+            ];
+          };
+
+          release = pkgs.mkShell {
+            packages = with pkgs; [
+              flake-release
             ];
           };
 
           update = pkgs.mkShell {
             packages = with pkgs; [
               renovate
+              cargo # rust
             ];
           };
 
@@ -64,42 +82,83 @@
             packages = with pkgs; [
               flake-checker # nix
               zizmor # actions
+              cargo-audit # rust
             ];
           };
         };
 
-        checks = pkgs.mkChecks {
-          bash = {
+        # nix run [#...]
+        apps = pkgs.mkApps {
+          default = "cargo run";
+          test = "cargo test";
+        };
+
+        # nix build [#...]
+        packages = {
+          default = pkgs.rustPlatform.buildRustPackage (
+            final: with pkgs.lib; {
+              pname = "fix-hash";
+              version = "0.2.0";
+
+              src = fileset.toSource {
+                root = ./.;
+                fileset = fileset.unions [
+                  ./Cargo.lock
+                  ./Cargo.toml
+                  ./LICENSE
+                  ./README.md
+                  (fileset.fileFilter (file: file.hasExt "rs") ./.)
+                ];
+              };
+              cargoLock.lockFile = ./Cargo.lock;
+
+              nativeCheckInputs = with pkgs; [
+                rustfmt
+                clippy
+              ];
+              checkPhase = ''
+                cargo test --offline
+                cargo fmt --check
+                cargo clippy --offline -- -D warnings
+              '';
+
+              meta = {
+                mainProgram = "fix-hash";
+                description = "Nix hash fixer";
+                license = licenses.mit;
+                platforms = platforms.all;
+                homepage = "https://github.com/spotdemo4/fix-hash";
+                changelog = "https://github.com/spotdemo4/fix-hash/releases/tag/v${final.version}";
+                downloadPage = "https://github.com/spotdemo4/fix-hash/releases/tag/v${final.version}";
+              };
+            }
+          );
+        };
+
+        # nix build #images.[...]
+        images = {
+          default = pkgs.mkImage {
             src = self.packages.${system}.default;
-            packages = with pkgs; [
-              shellcheck
-            ];
-            script = ''
-              shellcheck nix-fix-hash.sh
-            '';
+            contents = with pkgs; [ dockerTools.caCertificates ];
           };
+        };
 
-          actions = {
-            root = ./.;
-            files = ./.github/workflows;
-            packages = with pkgs; [
-              action-validator
-              zizmor
-            ];
-            forEach = ''
-              action-validator "$file"
-              zizmor --offline "$file"
-            '';
-          };
+        # nix fmt
+        formatter = pkgs.treefmt.withConfig {
+          configFile = ./treefmt.toml;
+          runtimeInputs = with pkgs; [
+            rustfmt
+            nixfmt
+            oxfmt
+          ];
+        };
 
-          renovate = {
-            root = ./.github;
-            files = ./.github/renovate.json;
-            packages = with pkgs; [
-              renovate
-            ];
-            script = ''
-              renovate-config-validator renovate.json
+        # nix flake check
+        checks = pkgs.mkChecks {
+          rust = self.packages.${system}.default.overrideAttrs {
+            dontBuild = true;
+            installPhase = ''
+              touch $out
             '';
           };
 
@@ -109,75 +168,46 @@
             packages = with pkgs; [
               nixfmt
             ];
-            forEach = ''
+            script = ''
               nixfmt --check "$file"
             '';
           };
 
-          prettier = {
+          config = {
             root = ./.;
-            filter = file: file.hasExt "yaml" || file.hasExt "json" || file.hasExt "md";
+            filter = file: file.hasExt "json" || file.hasExt "yaml" || file.hasExt "toml" || file.hasExt "md";
             packages = with pkgs; [
-              prettier
+              oxfmt
             ];
-            forEach = ''
-              prettier --check "$file"
+            script = ''
+              oxfmt --check
+            '';
+          };
+
+          actions = {
+            root = ./.github/workflows;
+            filter = file: file.hasExt "yaml";
+            packages = with pkgs; [
+              action-validator
+              zizmor
+            ];
+            script = ''
+              action-validator "$file"
+              zizmor --offline "$file"
+            '';
+          };
+
+          renovate = {
+            root = ./.github;
+            fileset = ./.github/renovate.json;
+            packages = with pkgs; [
+              renovate
+            ];
+            script = ''
+              renovate-config-validator renovate.json
             '';
           };
         };
-
-        packages.default = pkgs.stdenv.mkDerivation (
-          final: with pkgs.lib; {
-            pname = "nix-fix-hash";
-            version = "0.1.1";
-
-            src = builtins.path {
-              name = "root";
-              path = ./.;
-            };
-
-            runtimeInputs = with pkgs; [
-              mktemp
-              sd
-            ];
-
-            unpackPhase = ''
-              cp "$src/nix-fix-hash.sh" nix-fix-hash.sh
-            '';
-
-            dontBuild = true;
-
-            configurePhase = ''
-              sed -i '1c\#!${pkgs.runtimeShell}' nix-fix-hash.sh
-              sed -i '2c\export PATH="${makeBinPath final.runtimeInputs}:$PATH"' nix-fix-hash.sh
-            '';
-
-            installPhase = ''
-              mkdir -p "$out/bin"
-              cp nix-fix-hash.sh "$out/bin/nix-fix-hash"
-            '';
-
-            dontFixup = true;
-
-            meta = {
-              mainProgram = "nix-fix-hash";
-              description = "nix hash fixer";
-              license = licenses.mit;
-              platforms = platforms.all;
-              homepage = "https://github.com/spotdemo4/nix-fix-hash";
-              changelog = "https://github.com/spotdemo4/nix-fix-hash/releases/tag/v${final.version}";
-            };
-          }
-        );
-
-        images.default = pkgs.mkImage {
-          fromImage = pkgs.image.nix;
-          src = self.packages.${system}.default;
-          contents = with pkgs; [ dockerTools.caCertificates ];
-        };
-
-        formatter = pkgs.nixfmt-tree;
-        schemas = trev.schemas;
       }
     );
 }
