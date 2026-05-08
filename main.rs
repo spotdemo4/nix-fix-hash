@@ -162,9 +162,14 @@ fn main() -> Result<(), BoxError> {
             .into_iter()
             .filter(|d| index.get(&d.hash).is_some_and(|v| !v.is_empty()))
             .map(|drv| {
-                s.spawn(move || {
+                s.spawn(move || -> Result<Option<(Derivation, String)>, BoxError> {
                     step("Realizing", format!("nix-store --realise {}", drv.path));
-                    realise(&drv.path, &drv.hash).map(|opt| opt.map(|h| (drv, h)))
+                    let Some(next) = realise(&drv.path, &drv.hash)? else {
+                        return Ok(None);
+                    };
+
+                    step("Realized", format!("{} -> {}", drv.hash, next));
+                    Ok(Some((drv, next)))
                 })
             })
             .collect();
