@@ -14,7 +14,7 @@
     systems.url = "github:spotdemo4/systems";
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     trev = {
-      url = "github:spotdemo4/nur";
+      url = "github:spotdemo4/trevpkgs";
       inputs.systems.follows = "systems";
       inputs.nixpkgs.follows = "nixpkgs";
     };
@@ -134,9 +134,9 @@
                 description = "Nix hash fixer";
                 license = licenses.mit;
                 platforms = platforms.all;
-                homepage = "https://github.com/spotdemo4/fix-hash";
-                changelog = "https://github.com/spotdemo4/fix-hash/releases/tag/v${final.version}";
-                downloadPage = "https://github.com/spotdemo4/fix-hash/releases/tag/v${final.version}";
+                homepage = "https://github.com/spotdemo4/nix-fix-hash";
+                changelog = "https://github.com/spotdemo4/nix-fix-hash/releases/tag/v${final.version}";
+                downloadPage = "https://github.com/spotdemo4/nix-fix-hash/releases/tag/v${final.version}";
               };
             }
           );

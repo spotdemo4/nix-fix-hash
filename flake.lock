@@ -67,13 +67,13 @@
         "lastModified": 1778238951,
         "narHash": "sha256-RoDdkPz45+rT5wubO8MimNoJgAMtE6C2vP7seFH/dno=",
         "owner": "spotdemo4",
-        "repo": "nur",
+        "repo": "trevpkgs",
         "rev": "3fee310b499815ff3905c2564aafe206ae9ebeec",
         "type": "github"
       },
       "original": {
         "owner": "spotdemo4",
-        "repo": "nur",
+        "repo": "trevpkgs",
         "type": "github"
       }
     }
