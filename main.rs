@@ -1,36 +1,77 @@
 use colored::Colorize;
 use ignore::WalkBuilder;
+use ignore::WalkState;
+use indexmap::IndexMap;
 use regex::Regex;
+use std::collections::HashMap;
 use std::collections::HashSet;
 use std::error::Error;
+use std::fmt::Display;
 use std::path::Path;
 use std::path::PathBuf;
 use std::process::Command;
+use std::sync::Arc;
 use std::sync::LazyLock;
+use std::sync::mpsc;
 
 type BoxError = Box<dyn Error>;
 
-fn files_with_hash(dir: &Path, fod_hash: &str) -> Vec<PathBuf> {
-    WalkBuilder::new(dir)
-        .build()
-        .filter_map(Result::ok)
-        .filter(|e| e.file_type().is_some_and(|t| t.is_file()))
-        .map(ignore::DirEntry::into_path)
-        .filter(|p| p.extension().is_some_and(|ext| ext == "nix"))
-        .filter(|p| std::fs::read_to_string(p).is_ok_and(|s| s.contains(fod_hash)))
-        .collect()
-}
-
-fn patch_hash(path: &Path, old_hash: &str, new_hash: &str) -> Result<(), BoxError> {
-    let content = std::fs::read_to_string(path)?;
-    let new_content = content.replace(old_hash, new_hash);
-    std::fs::write(path, new_content)?;
-    Ok(())
+fn step(label: &str, msg: impl Display) {
+    println!("{: >12} {msg}", label.green().bold());
 }
 
 struct Derivation {
     path: String,
     hash: String,
+}
+
+struct NixFile {
+    path: PathBuf,
+    content: String,
+}
+
+fn collect_nix_files(dir: &Path, hashes: &HashSet<String>) -> Vec<NixFile> {
+    let hashes = Arc::new(hashes.clone());
+    let (tx, rx) = mpsc::channel::<NixFile>();
+
+    WalkBuilder::new(dir).build_parallel().run(|| {
+        let tx = tx.clone();
+        let hashes = Arc::clone(&hashes);
+        Box::new(move |result| {
+            let Ok(entry) = result else {
+                return WalkState::Continue;
+            };
+            if !entry.file_type().is_some_and(|t| t.is_file()) {
+                return WalkState::Continue;
+            }
+            let path = entry.into_path();
+            if path.extension().is_none_or(|e| e != "nix") {
+                return WalkState::Continue;
+            }
+            let Ok(content) = std::fs::read_to_string(&path) else {
+                return WalkState::Continue;
+            };
+            if hashes.iter().any(|h| content.contains(h)) {
+                let _ = tx.send(NixFile { path, content });
+            }
+            WalkState::Continue
+        })
+    });
+    drop(tx);
+
+    rx.iter().collect()
+}
+
+fn build_index(files: &[NixFile], hashes: &HashSet<String>) -> HashMap<String, Vec<usize>> {
+    let mut idx: HashMap<String, Vec<usize>> = HashMap::new();
+    for (i, file) in files.iter().enumerate() {
+        for hash in hashes {
+            if file.content.contains(hash) {
+                idx.entry(hash.clone()).or_default().push(i);
+            }
+        }
+    }
+    idx
 }
 
 fn fixed_output_derivations(args: &[String]) -> Result<Vec<Derivation>, BoxError> {
@@ -49,17 +90,19 @@ fn fixed_output_derivations(args: &[String]) -> Result<Vec<Derivation>, BoxError
         return Ok(Vec::new());
     };
 
-    let mut seen = HashSet::new();
-    Ok(drvs
-        .iter()
-        .filter_map(|(key, drv)| {
-            let path = format!("/nix/store/{key}");
-            let hash = drv["outputs"]["out"]["hash"].as_str()?.to_owned();
-
-            seen.insert(hash.clone())
-                .then_some(Derivation { path, hash })
-        })
-        .collect())
+    let mut by_hash: IndexMap<String, Derivation> = IndexMap::new();
+    for (key, drv) in drvs {
+        let Some(hash) = drv["outputs"]["out"]["hash"].as_str() else {
+            continue;
+        };
+        by_hash
+            .entry(hash.to_owned())
+            .or_insert_with(|| Derivation {
+                path: format!("/nix/store/{key}"),
+                hash: hash.to_owned(),
+            });
+    }
+    Ok(by_hash.into_values().collect())
 }
 
 static HASH_RE: LazyLock<Regex> =
@@ -104,39 +147,38 @@ fn main() -> Result<(), BoxError> {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let cwd = std::env::current_dir()?;
 
-    println!(
-        "{: >12} nix derivation show -r {}",
-        "Parsing".green().bold(),
-        args.join(" ")
+    step(
+        "Parsing",
+        format!("nix derivation show -r {}", args.join(" ")),
     );
     let derivations = fixed_output_derivations(&args)?;
 
+    let hashes: HashSet<String> = derivations.iter().map(|d| d.hash.clone()).collect();
+    let mut nix_files = collect_nix_files(&cwd, &hashes);
+    let index = build_index(&nix_files, &hashes);
+
     for drv in derivations {
-        let files = files_with_hash(&cwd, &drv.hash);
-        if files.is_empty() {
+        let Some(file_indices) = index.get(&drv.hash) else {
+            continue;
+        };
+        if file_indices.is_empty() {
             continue;
         }
 
-        println!(
-            "{: >12} nix-store --realise {}",
-            "Realizing".green().bold(),
-            drv.path
-        );
+        step("Realizing", format!("nix-store --realise {}", drv.path));
         let Some(next_hash) = realise(&drv.path, &drv.hash)? else {
             continue;
         };
 
-        for file in files {
-            println!("{: >12} {}", "Patching".green().bold(), file.display());
-            patch_hash(&file, &drv.hash, &next_hash)?;
+        for &i in file_indices {
+            let file = &mut nix_files[i];
+            step("Patching", file.path.display());
+            file.content = file.content.replace(&drv.hash, &next_hash);
+            std::fs::write(&file.path, &file.content)?;
         }
     }
 
-    println!(
-        "{: >12} nix build {}",
-        "Building".green().bold(),
-        args.join(" ")
-    );
+    step("Building", format!("nix build {}", args.join(" ")));
     build(&args)?;
 
     Ok(())
