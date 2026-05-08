@@ -113,8 +113,8 @@
                   ./Cargo.lock
                   ./Cargo.toml
                   ./LICENSE
+                  ./main.rs
                   ./README.md
-                  (fileset.fileFilter (file: file.hasExt "rs") ./.)
                 ];
               };
               cargoLock.lockFile = ./Cargo.lock;

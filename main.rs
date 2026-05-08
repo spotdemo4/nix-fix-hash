@@ -30,6 +30,7 @@ struct NixFile {
     content: String,
 }
 
+// Collects all nix files in the given directory that contain any of the given hashes
 fn collect_nix_files(dir: &Path, hashes: &HashSet<String>) -> Vec<NixFile> {
     let hashes = Arc::new(hashes.clone());
     let (tx, rx) = mpsc::channel::<NixFile>();
@@ -62,6 +63,7 @@ fn collect_nix_files(dir: &Path, hashes: &HashSet<String>) -> Vec<NixFile> {
     rx.iter().collect()
 }
 
+// Builds an index mapping each hash to the list of files that contain it
 fn build_index(files: &[NixFile], hashes: &HashSet<String>) -> HashMap<String, Vec<usize>> {
     let mut idx: HashMap<String, Vec<usize>> = HashMap::new();
     for (i, file) in files.iter().enumerate() {
@@ -74,6 +76,7 @@ fn build_index(files: &[NixFile], hashes: &HashSet<String>) -> HashMap<String, V
     idx
 }
 
+// Gets the fixed-output derivations for the given arguments, returning their paths and hashes
 fn fixed_output_derivations(args: &[String]) -> Result<Vec<Derivation>, BoxError> {
     let output = Command::new("nix")
         .args(["derivation", "show", "-r"])
@@ -105,19 +108,35 @@ fn fixed_output_derivations(args: &[String]) -> Result<Vec<Derivation>, BoxError
     Ok(by_hash.into_values().collect())
 }
 
-static HASH_RE: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"sha256-[A-Za-z0-9+/]{43}=?").unwrap());
-
-fn realise(path: &str, hash: &str) -> Result<Option<String>, BoxError> {
+// Checks if the output of a given derivation already exists in the nix store
+fn exists(path: &str) -> Result<bool, BoxError> {
     let output = Command::new("nix-store")
-        .args(["--quiet", "--no-build-output", "--realise"])
+        .args(["--query", "--hash", "--use-output"])
         .arg(path)
         .output()?;
 
+    Ok(output.status.success())
+}
+
+static HASH_RE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"sha256-[A-Za-z0-9+/]{43}=?").unwrap());
+
+// Realizes the given derivation, returning the new hash if it differs from the existing one
+fn realise(path: &str, hash: &str) -> Result<Option<String>, BoxError> {
+    let mut cmd = Command::new("nix-store");
+    cmd.args(["--quiet", "--no-build-output", "--realise"]);
+
+    // Rebuilds the derivation and checks whether the result is identical with the existing outputs
+    if exists(path)? {
+        cmd.arg("--check");
+    }
+
+    let output = cmd.arg(path).output()?;
     if output.status.success() {
         return Ok(None);
     }
 
+    // Finds hashes in the error output
     let err = String::from_utf8_lossy(&output.stderr);
     let mut matches: HashSet<String> = HASH_RE
         .find_iter(err.trim())
