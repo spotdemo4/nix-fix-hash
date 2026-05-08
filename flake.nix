@@ -65,6 +65,13 @@
             ];
           };
 
+          check = pkgs.mkShell {
+            packages = with pkgs; [
+              rustc
+              cargo
+            ];
+          };
+
           release = pkgs.mkShell {
             packages = with pkgs; [
               flake-release
