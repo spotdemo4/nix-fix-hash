@@ -14,7 +14,7 @@ use std::sync::Arc;
 use std::sync::LazyLock;
 use std::sync::mpsc;
 
-type BoxError = Box<dyn Error>;
+type BoxError = Box<dyn Error + Send + Sync>;
 
 fn step(label: &str, msg: impl Display) {
     println!("{: >12} {msg}", label.green().bold());
@@ -157,20 +157,29 @@ fn main() -> Result<(), BoxError> {
     let mut nix_files = collect_nix_files(&cwd, &hashes);
     let index = build_index(&nix_files, &hashes);
 
-    for drv in derivations {
-        let Some(file_indices) = index.get(&drv.hash) else {
-            continue;
-        };
-        if file_indices.is_empty() {
-            continue;
+    let realised = std::thread::scope(|s| -> Result<Vec<(Derivation, String)>, BoxError> {
+        let handles: Vec<_> = derivations
+            .into_iter()
+            .filter(|d| index.get(&d.hash).is_some_and(|v| !v.is_empty()))
+            .map(|drv| {
+                s.spawn(move || {
+                    step("Realizing", format!("nix-store --realise {}", drv.path));
+                    realise(&drv.path, &drv.hash).map(|opt| opt.map(|h| (drv, h)))
+                })
+            })
+            .collect();
+
+        let mut out = Vec::new();
+        for h in handles {
+            if let Some(pair) = h.join().unwrap()? {
+                out.push(pair);
+            }
         }
+        Ok(out)
+    })?;
 
-        step("Realizing", format!("nix-store --realise {}", drv.path));
-        let Some(next_hash) = realise(&drv.path, &drv.hash)? else {
-            continue;
-        };
-
-        for &i in file_indices {
+    for (drv, next_hash) in realised {
+        for &i in &index[&drv.hash] {
             let file = &mut nix_files[i];
             step("Patching", file.path.display());
             file.content = file.content.replace(&drv.hash, &next_hash);
