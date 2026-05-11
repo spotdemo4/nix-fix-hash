@@ -93,7 +93,7 @@
 
         # nix run [#...]
         apps = pkgs.mkApps {
-          default = "cargo run";
+          run = "cargo run";
           test = "cargo test";
         };
 
