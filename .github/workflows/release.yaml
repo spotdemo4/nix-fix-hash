@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   linux:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       id-token: write
       contents: write
@@ -59,14 +59,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PACKAGES: |
-            packages.aarch64-darwin.default.arm64-apple-darwin
+            packages.aarch64-darwin
             packages.aarch64-darwin.default.x86_64-apple-darwin
 
-  check:
+  check-action:
     needs: linux
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
+    name: check action
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
