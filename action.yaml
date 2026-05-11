@@ -1,0 +1,15 @@
+name: nix-fix-hash
+description: nix hash fixer
+author: trev
+
+inputs:
+  arguments:
+    description: "arguments to nix-fix-hash"
+    required: true
+    default: ""
+
+runs:
+  using: docker
+  image: docker://ghcr.io/spotdemo4/nix-fix-hash:0.2.0
+  args:
+    - ${{ inputs.arguments }}
