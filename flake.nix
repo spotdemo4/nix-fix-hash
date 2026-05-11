@@ -195,7 +195,11 @@
           };
 
           actions = {
-            root = ./.github/workflows;
+            root = ./.;
+            files = [
+              ./action.yaml
+              ./.github/workflows
+            ];
             filter = file: file.hasExt "yaml";
             packages = with pkgs; [
               action-validator
