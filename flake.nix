@@ -39,9 +39,6 @@
               rustc
               cargo
 
-              # deps
-              nix
-
               # lint
               clippy
               cargo-audit
