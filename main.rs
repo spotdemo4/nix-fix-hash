@@ -179,7 +179,14 @@ fn build(args: &[String]) -> Result<(), BoxError> {
 }
 
 fn main() -> Result<(), BoxError> {
-    let args: Vec<String> = std::env::args().skip(1).collect();
+    let args: Vec<String> = std::env::args()
+        .skip(1)
+        .flat_map(|a| {
+            a.split_whitespace()
+                .map(String::from)
+                .collect::<Vec<String>>()
+        })
+        .collect();
     let cwd = std::env::current_dir()?;
 
     step(
