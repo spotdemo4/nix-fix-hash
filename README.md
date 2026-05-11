@@ -16,7 +16,7 @@ nix run github:spotdemo4/nix-fix-hash
 Fix a specific flake output:
 
 ```elm
-nix run github:spotdemo4/nix-fix-hash .#output
+nix run github:spotdemo4/nix-fix-hash -- .#output
 ```
 
 Fix a specific file:
