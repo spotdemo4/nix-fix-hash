@@ -22,7 +22,7 @@ nix run github:spotdemo4/nix-fix-hash .#output
 Fix a specific file:
 
 ```elm
-nix run github:spotdemo4/nix-fix-hash --file package.nix
+nix run github:spotdemo4/nix-fix-hash -- --file package.nix
 ```
 
 ## Install
