@@ -79,7 +79,15 @@ fn build_index(files: &[NixFile], hashes: &HashSet<String>) -> HashMap<String, V
 // Gets the fixed-output derivations for the given arguments, returning their paths and hashes
 fn fixed_output_derivations(args: &[String]) -> Result<Vec<Derivation>, BoxError> {
     let output = Command::new("nix")
-        .args(["derivation", "show", "-r"])
+        .args([
+            "derivation",
+            "show",
+            "--extra-experimental-features",
+            "nix-command",
+            "--extra-experimental-features",
+            "flakes",
+            "--recursive",
+        ])
         .args(args)
         .output()?;
 
@@ -151,7 +159,15 @@ fn realise(path: &str, hash: &str) -> Result<Option<String>, BoxError> {
 
 fn build(args: &[String]) -> Result<(), BoxError> {
     let output = Command::new("nix")
-        .args(["build", "--no-link"])
+        .args([
+            "build",
+            "--extra-experimental-features",
+            "nix-command",
+            "--extra-experimental-features",
+            "flakes",
+            "--no-warn-dirty",
+            "--no-link",
+        ])
         .args(args)
         .output()?;
 
@@ -172,6 +188,7 @@ fn main() -> Result<(), BoxError> {
     );
     let derivations = fixed_output_derivations(&args)?;
 
+    step("Collecting", cwd.join("*.nix").display());
     let hashes: HashSet<String> = derivations.iter().map(|d| d.hash.clone()).collect();
     let mut nix_files = collect_nix_files(&cwd, &hashes);
     let index = build_index(&nix_files, &hashes);

@@ -145,6 +145,11 @@
             fromImage = pkgs.image.nix;
             src = self.packages.${system}.default;
             contents = with pkgs; [ dockerTools.caCertificates ];
+            enableFakechroot = true;
+            fakeRootCommands = ''
+              echo "[safe]" >> /etc/gitconfig
+              echo "    directory = *" >> /etc/gitconfig
+            '';
           };
         };
 
