@@ -17,7 +17,7 @@ use std::sync::mpsc;
 type BoxError = Box<dyn Error + Send + Sync>;
 
 fn step(label: &str, msg: impl Display) {
-    println!("{: >12} {msg}", label.green().bold());
+    println!("{: >12} {msg}", label.blue().bold());
 }
 
 struct Derivation {
