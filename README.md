@@ -29,13 +29,13 @@ nix run github:spotdemo4/nix-fix-hash --file package.nix
 
 ### Download
 
-| OS    | Architecture | Download                                                                                                                              |
-| ----- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
-| Linux | amd64        | [nix-fix-hash_0.2.0_linux_amd64](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.2.0/nix-fix-hash_0.2.0_linux_amd64)   |
-| Linux | arm64        | [nix-fix-hash_0.2.0_linux_arm64](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.2.0/nix-fix-hash_0.2.0_linux_arm64)   |
-| Linux | arm          | [nix-fix-hash_0.2.0_linux_arm](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.2.0/nix-fix-hash_0.2.0_linux_arm)       |
-| MacOS | amd64        | [nix-fix-hash_0.2.0_darwin_amd64](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.2.0/nix-fix-hash_0.2.0_darwin_amd64) |
-| MacOS | arm64        | [nix-fix-hash_0.2.0_darwin_arm64](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.2.0/nix-fix-hash_0.2.0_darwin_arm64) |
+| OS    | Architecture | Download                                                                                                                      |
+| ----- | ------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| Linux | amd64        | [fix-hash_0.2.0_linux_amd64](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.2.0/fix-hash_0.2.0_linux_amd64)   |
+| Linux | arm64        | [fix-hash_0.2.0_linux_arm64](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.2.0/fix-hash_0.2.0_linux_arm64)   |
+| Linux | arm          | [fix-hash_0.2.0_linux_arm](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.2.0/fix-hash_0.2.0_linux_arm)       |
+| MacOS | amd64        | [fix-hash_0.2.0_darwin_amd64](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.2.0/fix-hash_0.2.0_darwin_amd64) |
+| MacOS | arm64        | [fix-hash_0.2.0_darwin_arm64](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.2.0/fix-hash_0.2.0_darwin_arm64) |
 
 ### Nix
 
@@ -48,12 +48,14 @@ inputs = {
 };
 
 outputs = { fix-hash, ... }: {
-    devShells."${system}".default = pkgs.mkShell {
-        packages = [
-            fix-hash.packages."${system}".default
-        ];
+    devShells.x86_64-linux.default = pkgs.mkShell {
+        packages = [ fix-hash.packages."${system}".default ];
     };
 }
+```
+
+```elm
+fix-hash .#output
 ```
 
 also available from the [nur](https://nur.nix-community.org/repos/trev/) as `repos.trev.nix-fix-hash`
