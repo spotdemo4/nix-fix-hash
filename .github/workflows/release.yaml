@@ -63,8 +63,8 @@ jobs:
             packages.aarch64-darwin.default.x86_64-apple-darwin
 
   check-action:
-    needs: linux
     name: check action
+    needs: linux
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -76,3 +76,6 @@ jobs:
         uses: ./
         with:
           arguments: --file tests/bad.nix
+
+      - name: Check diff
+        run: diff tests/bad.nix tests/good.nix || exit 1
