@@ -1,0 +1,15 @@
+#:schema https://www.schemastore.org/treefmt.json
+
+[formatter.rustfmt]
+command = "rustfmt"
+options = ["--edition", "2024"]
+includes = ["*.rs"]
+
+[formatter.nixfmt]
+command = "nixfmt"
+includes = ["*.nix"]
+
+[formatter.oxfmt]
+command = "oxfmt"
+options = ["--write"]
+includes = ["*.json", "*.yaml", "*.toml", "*.md"]

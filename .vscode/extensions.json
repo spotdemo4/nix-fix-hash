@@ -1,7 +1,3 @@
 {
-  "recommendations": [
-    "timonwong.shellcheck",
-    "jnoortheen.nix-ide",
-    "esbenp.prettier-vscode"
-  ]
+  "recommendations": ["rust-lang.rust-analyzer", "oxc.oxc-vscode", "jnoortheen.nix-ide"]
 }

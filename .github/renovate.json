@@ -19,16 +19,21 @@
   },
   "packageRules": [
     {
-      "automerge": true,
-      "matchUpdateTypes": ["minor", "patch", "pin", "digest"]
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": true
     },
     {
-      "groupName": "nix inputs",
-      "matchManagers": ["nix"]
+      "matchManagers": ["nix"],
+      "groupName": "nix inputs"
     },
     {
-      "groupName": "github actions",
-      "matchManagers": ["github-actions"]
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions"
+    },
+    {
+      "matchManagers": ["cargo"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "groupName": "rust crates"
     }
   ]
 }

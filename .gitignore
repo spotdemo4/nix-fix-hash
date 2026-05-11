@@ -2,6 +2,12 @@
 /.envrc
 /docker-compose*
 
+# ai
+/.claude/
+
 # nix
 /result*
 /.direnv/
+
+# rust
+/target/
