@@ -43,7 +43,7 @@ jobs:
           visibility: public
 
   darwin:
-    runs-on: macos-latest
+    runs-on: macos-26
     permissions:
       id-token: write
       contents: write
