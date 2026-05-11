@@ -124,8 +124,8 @@
                 clippy
               ];
               checkPhase = ''
-                cargo test --offline
                 cargo fmt --check
+                cargo test --offline
                 cargo clippy --offline -- -D warnings
               '';
 
@@ -145,6 +145,7 @@
         # nix build #images.[...]
         images = {
           default = pkgs.mkImage {
+            fromImage = pkgs.image.nix;
             src = self.packages.${system}.default;
             contents = with pkgs; [ dockerTools.caCertificates ];
           };

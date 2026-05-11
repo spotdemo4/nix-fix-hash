@@ -75,6 +75,7 @@
     },
     "TOML": {
       "format_on_save": "on",
+      "language_servers": ["tombi"],
       "prettier": {
         "allowed": false
       },
