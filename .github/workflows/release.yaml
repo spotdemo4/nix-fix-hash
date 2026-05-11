@@ -61,3 +61,19 @@ jobs:
           PACKAGES: |
             packages.aarch64-darwin.default.arm64-apple-darwin
             packages.aarch64-darwin.default.x86_64-apple-darwin
+
+  check:
+    needs: linux
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Run action
+        uses: ./
+        with:
+          arguments: --file tests/bad.nix
