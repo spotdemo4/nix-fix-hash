@@ -25,6 +25,12 @@ Fix a specific file:
 nix run github:spotdemo4/nix-fix-hash -- --file package.nix
 ```
 
+Check the result with `nix build` after fixing hashes:
+
+```elm
+nix run github:spotdemo4/nix-fix-hash -- --check .#output
+```
+
 ## Install
 
 ### Download

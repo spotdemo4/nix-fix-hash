@@ -30,6 +30,32 @@ struct NixFile {
     content: String,
 }
 
+struct Args {
+    check: bool,
+    nix: Vec<String>,
+}
+
+fn parse_args<I>(args: I) -> Args
+where
+    I: IntoIterator,
+    I::Item: AsRef<str>,
+{
+    let mut check = false;
+    let mut nix = Vec::new();
+
+    for arg in args {
+        for part in arg.as_ref().split_whitespace() {
+            if part == "--check" {
+                check = true;
+            } else {
+                nix.push(part.to_owned());
+            }
+        }
+    }
+
+    Args { check, nix }
+}
+
 // Collects all nix files in the given directory that contain any of the given hashes
 fn collect_nix_files(dir: &Path, hashes: &HashSet<String>) -> Vec<NixFile> {
     let hashes = Arc::new(hashes.clone());
@@ -179,21 +205,14 @@ fn build(args: &[String]) -> Result<(), BoxError> {
 }
 
 fn main() -> Result<(), BoxError> {
-    let args: Vec<String> = std::env::args()
-        .skip(1)
-        .flat_map(|a| {
-            a.split_whitespace()
-                .map(String::from)
-                .collect::<Vec<String>>()
-        })
-        .collect();
+    let args = parse_args(std::env::args().skip(1));
     let cwd = std::env::current_dir()?;
 
     step(
         "Parsing",
-        format!("nix derivation show -r {}", args.join(" ")),
+        format!("nix derivation show -r {}", args.nix.join(" ")),
     );
-    let derivations = fixed_output_derivations(&args)?;
+    let derivations = fixed_output_derivations(&args.nix)?;
 
     step("Collecting", cwd.join("*.nix").display());
     let hashes: HashSet<String> = derivations.iter().map(|d| d.hash.clone()).collect();
@@ -235,8 +254,31 @@ fn main() -> Result<(), BoxError> {
         }
     }
 
-    step("Building", format!("nix build {}", args.join(" ")));
-    build(&args)?;
+    if args.check {
+        step("Building", format!("nix build {}", args.nix.join(" ")));
+        build(&args.nix)?;
+    }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::parse_args;
+
+    #[test]
+    fn parse_args_consumes_check_flag() {
+        let args = parse_args(["--check", ".#pkg"]);
+
+        assert!(args.check);
+        assert_eq!(args.nix, [".#pkg"]);
+    }
+
+    #[test]
+    fn parse_args_splits_action_arguments() {
+        let args = parse_args(["--check --file package.nix"]);
+
+        assert!(args.check);
+        assert_eq!(args.nix, ["--file", "package.nix"]);
+    }
 }
