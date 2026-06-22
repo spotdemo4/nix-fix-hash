@@ -20,7 +20,7 @@ jobs:
       packages: write
     steps:
       - name: Initialize
-        uses: spotdemo4/nix-init@8cfbe9e5d4eef03c557a70763c90af7ff4aafe67 # v1.46.0
+        uses: spotdemo4/nix-init@c2709c977467ea3c9a12f82fe48922ce49947a2d # v1.53.0
         with:
           fetch_depth: 0
           shell: release
@@ -48,7 +48,7 @@ jobs:
       contents: write
     steps:
       - name: Initialize
-        uses: spotdemo4/nix-init@8cfbe9e5d4eef03c557a70763c90af7ff4aafe67 # v1.46.0
+        uses: spotdemo4/nix-init@c2709c977467ea3c9a12f82fe48922ce49947a2d # v1.53.0
         with:
           fetch_depth: 0
           shell: release
