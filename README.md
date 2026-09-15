@@ -5,7 +5,9 @@
 [![rust](https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fspotdemo4%2Fnix-fix-hash%2Frefs%2Fheads%2Fmain%2FCargo.toml&query=%24.package.rust-version&logo=rust&logoColor=%23bac2de&label=version&labelColor=%23313244&color=%23D34516)](https://releases.rs/)
 [![flakehub](https://img.shields.io/endpoint?url=https://flakehub.com/f/spotdemo4/nix-fix-hash/badge&labelColor=%23313244)](https://flakehub.com/flake/spotdemo4/nix-fix-hash)
 
-Automatically fixes incorrect Nix [fixed-output derivation](https://nix.dev/manual/nix/2.34/glossary#gloss-fixed-output-derivation) (FOD) hashes
+Automatically fixes incorrect Nix [fixed-output derivation](https://nix.dev/manual/nix/2.34/glossary#gloss-fixed-output-derivation) (FOD) hashes.
+
+Dependent hashes are rediscovered and fixed in successive rounds, so cases such as a source hash followed by `cargoHash` are handled in one invocation.
 
 ## Use
 
@@ -25,7 +27,7 @@ Fix a specific file:
 nix run github:spotdemo4/nix-fix-hash -- --file package.nix
 ```
 
-Check the result with `nix build` after fixing hashes:
+After all hash updates converge, check the result with one final `nix build`:
 
 ```elm
 nix run github:spotdemo4/nix-fix-hash -- --check .#output

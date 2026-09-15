@@ -110,8 +110,9 @@
                   ./Cargo.lock
                   ./Cargo.toml
                   ./LICENSE
-                  ./main.rs
                   ./README.md
+                  ./src
+                  ./tests
                 ];
               };
               cargoLock.lockFile = ./Cargo.lock;
