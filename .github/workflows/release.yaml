@@ -72,7 +72,7 @@ jobs:
           persist-credentials: false
 
       - name: Run action
-        uses: ./
+        uses: $/
         with:
           arguments: --file tests/bad.nix
 
