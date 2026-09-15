@@ -42,7 +42,6 @@ nix run github:spotdemo4/nix-fix-hash -- --check .#output
 | Linux | amd64        | [fix-hash_0.5.1_linux_amd64](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.5.1/fix-hash_0.5.1_linux_amd64)   |
 | Linux | arm64        | [fix-hash_0.5.1_linux_arm64](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.5.1/fix-hash_0.5.1_linux_arm64)   |
 | Linux | arm          | [fix-hash_0.5.1_linux_arm](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.5.1/fix-hash_0.5.1_linux_arm)       |
-| MacOS | amd64        | [fix-hash_0.5.1_darwin_amd64](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.5.1/fix-hash_0.5.1_darwin_amd64) |
 | MacOS | arm64        | [fix-hash_0.5.1_darwin_arm64](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.5.1/fix-hash_0.5.1_darwin_arm64) |
 
 ### Nix
