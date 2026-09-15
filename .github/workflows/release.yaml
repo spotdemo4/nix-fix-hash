@@ -58,7 +58,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PACKAGES: |
-            packages.aarch64-darwin.default.arm64-apple-darwin
+            packages.aarch64-darwin.default
 
   check-action:
     name: check action
