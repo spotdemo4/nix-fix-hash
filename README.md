@@ -39,10 +39,10 @@ nix run github:spotdemo4/nix-fix-hash -- --check .#output
 
 | OS    | Architecture | Download                                                                                                                      |
 | ----- | ------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| Linux | amd64        | [fix-hash_0.5.2_linux_amd64](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.5.2/fix-hash_0.5.2_linux_amd64)   |
-| Linux | arm64        | [fix-hash_0.5.2_linux_arm64](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.5.2/fix-hash_0.5.2_linux_arm64)   |
-| Linux | arm          | [fix-hash_0.5.2_linux_arm](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.5.2/fix-hash_0.5.2_linux_arm)       |
-| MacOS | arm64        | [fix-hash_0.5.2_darwin_arm64](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.5.2/fix-hash_0.5.2_darwin_arm64) |
+| Linux | amd64        | [fix-hash_0.5.3_linux_amd64](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.5.3/fix-hash_0.5.3_linux_amd64)   |
+| Linux | arm64        | [fix-hash_0.5.3_linux_arm64](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.5.3/fix-hash_0.5.3_linux_arm64)   |
+| Linux | arm          | [fix-hash_0.5.3_linux_arm](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.5.3/fix-hash_0.5.3_linux_arm)       |
+| MacOS | arm64        | [fix-hash_0.5.3_darwin_arm64](https://github.com/spotdemo4/nix-fix-hash/releases/download/v0.5.3/fix-hash_0.5.3_darwin_arm64) |
 
 ### Nix
 
@@ -71,7 +71,7 @@ also available from the [nur](https://nur.nix-community.org/repos/trev/) as `rep
 
 ```yaml
 - name: fix nix hashes
-  uses: spotdemo4/nix-fix-hash@v0.5.2
+  uses: spotdemo4/nix-fix-hash@v0.5.3
   with:
     arguments: .#package
 ```
@@ -79,5 +79,5 @@ also available from the [nur](https://nur.nix-community.org/repos/trev/) as `rep
 ### Docker
 
 ```elm
-docker run -v "$(pwd):/app" -w /app ghcr.io/spotdemo4/nix-fix-hash:0.5.2
+docker run -v "$(pwd):/app" -w /app ghcr.io/spotdemo4/nix-fix-hash:0.5.3
 ```

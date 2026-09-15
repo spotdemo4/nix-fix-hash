@@ -102,7 +102,7 @@
           default = pkgs.rustPlatform.buildRustPackage (
             final: with pkgs.lib; {
               pname = "fix-hash";
-              version = "0.5.2";
+              version = "0.5.3";
 
               src = fileset.toSource {
                 root = ./.;
