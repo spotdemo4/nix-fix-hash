@@ -102,7 +102,7 @@
           default = pkgs.mkRustPackage (
             final: with pkgs.lib; {
               pname = "fix-hash";
-              version = "0.5.3";
+              version = "0.5.4";
 
               src = fileset.toSource {
                 root = ./.;

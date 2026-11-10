@@ -66,7 +66,7 @@ also available from the [nur](https://nur.nix-community.org/repos/trev/) as `rep
 
 ```yaml
 - name: fix nix hashes
-  uses: spotdemo4/nix-fix-hash@v0.5.3
+  uses: spotdemo4/nix-fix-hash@v0.5.4
   with:
     arguments: .#package
 ```
@@ -74,5 +74,5 @@ also available from the [nur](https://nur.nix-community.org/repos/trev/) as `rep
 ### Docker
 
 ```elm
-docker run -v "$(pwd):/app" -w /app ghcr.io/spotdemo4/nix-fix-hash:0.5.3
+docker run -v "$(pwd):/app" -w /app ghcr.io/spotdemo4/nix-fix-hash:0.5.4
 ```
