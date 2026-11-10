@@ -160,6 +160,62 @@ fn classify_realisation(succeeded: bool, expected_hash: &str, stderr: &str) -> R
     }
 }
 
+// Gets the derivations that the given derivation takes as inputs
+fn input_derivations(path: &str) -> Result<Vec<String>, BoxError> {
+    let output = Command::new("nix-store")
+        .args(["--query", "--references"])
+        .arg(path)
+        .output()?;
+
+    if !output.status.success() {
+        return Err(String::from_utf8_lossy(&output.stderr).trim().into());
+    }
+
+    Ok(String::from_utf8_lossy(&output.stdout)
+        .lines()
+        .map(str::trim)
+        .filter(|line| {
+            std::path::Path::new(line)
+                .extension()
+                .is_some_and(|extension| extension == "drv")
+        })
+        .map(str::to_owned)
+        .collect())
+}
+
+// Realizes the inputs of the given derivation, allowing them to be substituted
+fn realise_inputs(derivation: &Derivation) -> Option<RealisationOutcome> {
+    let inputs = match input_derivations(&derivation.path) {
+        Ok(inputs) => inputs,
+        Err(error) => {
+            return Some(hard_error(format!(
+                "failed to query the inputs of {}: {error}",
+                derivation.path
+            )));
+        }
+    };
+    if inputs.is_empty() {
+        return None;
+    }
+
+    match Command::new("nix-store")
+        .args(["--quiet", "--no-build-output", "--realise"])
+        .args(&inputs)
+        .output()
+    {
+        Ok(output) if output.status.success() => None,
+        Ok(output) => Some(classify_realisation(
+            false,
+            &derivation.expected_hash,
+            &String::from_utf8_lossy(&output.stderr),
+        )),
+        Err(error) => Some(hard_error(format!(
+            "failed to realize the inputs of {}: {error}",
+            derivation.path
+        ))),
+    }
+}
+
 // Realizes the given derivation and classifies any hash mismatch it reports
 pub(crate) fn realise(derivation: &Derivation) -> RealisationOutcome {
     let mut cmd = Command::new("nix-store");
@@ -170,7 +226,15 @@ pub(crate) fn realise(derivation: &Derivation) -> RealisationOutcome {
             // Rebuilds the derivation and checks whether the result is identical with the existing outputs
             cmd.arg("--check");
         }
-        Ok(false) => {}
+        Ok(false) => {
+            // A fixed-output derivation's output path depends only on its declared hash, so a
+            // substituter can still serve the output of a stale hash. Realize the inputs first,
+            // which may be substituted, then build the derivation itself without substitution.
+            if let Some(outcome) = realise_inputs(derivation) {
+                return outcome;
+            }
+            cmd.args(["--option", "substitute", "false"]);
+        }
         Err(error) => {
             return hard_error(format!(
                 "failed to query {} before realization: {error}",
