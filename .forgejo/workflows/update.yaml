@@ -1,0 +1,35 @@
+name: update
+
+on:
+  schedule:
+    - cron: "0 9 * * *" # every day at 09:00 UTC
+  workflow_dispatch:
+    inputs:
+      debug:
+        description: Enable Renovate debug logging
+        required: false
+        type: boolean
+        default: false
+
+# yaml-language-server-disable is not allowed
+enable-openid-connect: true
+
+jobs:
+  renovate:
+    # zizmor: ignore[excessive-permissions]
+    runs-on: ubuntu-26.04
+    steps:
+      - name: Initialize
+        uses: spotdemo4/nix-init@c184156b02706754274a295bca8418e75ccc0ef7 # v1.76.0
+        with:
+          github_token: ${{ secrets.GH_TOKEN }}
+          niks3_url: https://niks3.trev.zip
+          shell: update
+
+      - name: Renovate
+        run: renovate
+        env:
+          RENOVATE_CONFIG_FILE: .forgejo/renovate.jsonc
+          RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN }}
+          RENOVATE_GITHUB_COM_TOKEN: ${{ secrets.GH_TOKEN }}
+          LOG_LEVEL: ${{ inputs.debug && 'debug' || 'info' }}

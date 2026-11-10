@@ -15,22 +15,17 @@ permissions:
 
 jobs:
   check:
-    runs-on: ubuntu-26.04
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-26.04, ubuntu-26.04-arm, macos-26]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
     permissions:
       id-token: write
     steps:
       - name: Initialize
-        uses: spotdemo4/nix-init@392955b6ae2230bd7cbb0d8d90051ddd9b8d537e # v1.75.0
-        with:
-          shell: check
-
-      - name: Configure NIX_PATH
-        run: |
-          nixpkgs=$(nix eval --raw --impure --expr '(builtins.getFlake (builtins.toString ./.)).inputs.nixpkgs.outPath')
-          echo "NIX_PATH=nixpkgs=$nixpkgs${NIX_PATH:+:$NIX_PATH}" >> "$GITHUB_ENV"
+        uses: spotdemo4/nix-init@c184156b02706754274a295bca8418e75ccc0ef7 # v1.76.0
 
       - name: Check
         run: nix flake check
-
-      - name: Test
-        run: cargo test -- --ignored

@@ -20,7 +20,7 @@
       "inputs": {
         "nixpkgs": "nixpkgs",
         "systems": "systems",
-        "trev": "trev"
+        "trevpkgs": "trevpkgs"
       }
     },
     "schema": {
@@ -53,7 +53,7 @@
         "type": "github"
       }
     },
-    "trev": {
+    "trevpkgs": {
       "inputs": {
         "nixpkgs": [
           "nixpkgs"

@@ -9,31 +9,31 @@ permissions:
   contents: read
 
 jobs:
-  nix:
-    runs-on: ubuntu-26.04
-    permissions:
-      id-token: write
-    steps:
-      - name: Initialize
-        uses: spotdemo4/nix-init@392955b6ae2230bd7cbb0d8d90051ddd9b8d537e # v1.75.0
-        with:
-          shell: vulnerable
-
-      - name: Run flake-checker
-        run: flake-checker -f
-
   actions:
     runs-on: ubuntu-26.04
     permissions:
       id-token: write
     steps:
       - name: Initialize
-        uses: spotdemo4/nix-init@392955b6ae2230bd7cbb0d8d90051ddd9b8d537e # v1.75.0
+        uses: spotdemo4/nix-init@c184156b02706754274a295bca8418e75ccc0ef7 # v1.76.0
         with:
           shell: vulnerable
 
       - name: Run zizmor
-        run: zizmor .github
+        run: zizmor $(find .github/workflows -name "*.yaml")
+
+  nix:
+    runs-on: ubuntu-26.04
+    permissions:
+      id-token: write
+    steps:
+      - name: Initialize
+        uses: spotdemo4/nix-init@c184156b02706754274a295bca8418e75ccc0ef7 # v1.76.0
+        with:
+          shell: vulnerable
+
+      - name: Run flake-checker
+        run: flake-checker -f
 
   rust:
     runs-on: ubuntu-26.04
@@ -41,7 +41,7 @@ jobs:
       id-token: write
     steps:
       - name: Initialize
-        uses: spotdemo4/nix-init@392955b6ae2230bd7cbb0d8d90051ddd9b8d537e # v1.75.0
+        uses: spotdemo4/nix-init@c184156b02706754274a295bca8418e75ccc0ef7 # v1.76.0
         with:
           shell: vulnerable
 

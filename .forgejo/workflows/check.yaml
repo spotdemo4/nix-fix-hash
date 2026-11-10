@@ -1,0 +1,37 @@
+name: check
+
+on:
+  pull_request:
+    branches: ["main"]
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+
+# yaml-language-server-disable is not allowed
+enable-openid-connect: true
+
+jobs:
+  check:
+    # zizmor: ignore[excessive-permissions]
+    runs-on: ubuntu-26.04
+    steps:
+      - name: Initialize
+        uses: spotdemo4/nix-init@c184156b02706754274a295bca8418e75ccc0ef7 # v1.76.0
+        with:
+          github_token: ${{ secrets.GH_TOKEN }}
+          niks3_url: https://niks3.trev.zip
+          shell: check
+
+      - name: Configure NIX_PATH
+        run: |
+          nixpkgs=$(nix eval --raw --impure --expr '(builtins.getFlake (builtins.toString ./.)).inputs.nixpkgs.outPath')
+          echo "NIX_PATH=nixpkgs=$nixpkgs${NIX_PATH:+:$NIX_PATH}" >> "$GITHUB_ENV"
+
+      - name: Check
+        run: nix flake check
+
+      - name: Test
+        run: cargo test -- --ignored

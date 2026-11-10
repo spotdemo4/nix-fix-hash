@@ -2,8 +2,10 @@
 /.envrc
 /docker-compose*
 
-# ai
-/.claude/
+# agents
+.agents/
+.claude/
+.codex/
 
 # nix
 /result*

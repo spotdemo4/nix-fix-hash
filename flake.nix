@@ -13,7 +13,7 @@
   inputs = {
     systems.url = "github:spotdemo4/systems";
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    trev = {
+    trevpkgs = {
       url = "github:spotdemo4/trevpkgs";
       inputs.systems.follows = "systems";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -23,36 +23,40 @@
   outputs =
     {
       self,
-      trev,
+      trevpkgs,
       ...
     }:
-    trev.libs.mkFlake (
+    trevpkgs.libs.mkFlake (
       system: pkgs: {
 
         # nix develop [#...]
         devShells = {
           default = pkgs.mkShell {
-            RUST_SRC_PATH = pkgs.rustPlatform.rustLibSrc;
             shellHook = pkgs.shellhook.ref;
+            env.RUST_SRC_PATH = pkgs.rustPlatform.rustLibSrc;
             packages = with pkgs; [
               # rust
               rustc
+              gcc # linker
               cargo
-
-              # lint
+              rust-analyzer
+              rustfmt
               clippy
               cargo-audit
-              nixd
-              nil
 
-              # format
-              rustfmt
+              vscode-json-languageserver # json
+              yaml-language-server # yaml
+              tombi # toml
+              oxfmt # format
+
+              # nix
+              nixd
               nixfmt
-              oxfmt
-              treefmt
 
               # util
+              treefmt
               bumper
+              fix-hash
             ];
           };
 
@@ -62,9 +66,11 @@
             ];
           };
 
+          # integration tests, which need nix and network access
           check = pkgs.mkShell {
             packages = with pkgs; [
               rustc
+              gcc # linker
               cargo
             ];
           };
@@ -84,22 +90,16 @@
 
           vulnerable = pkgs.mkShell {
             packages = with pkgs; [
+              cargo-audit # rust
               flake-checker # nix
               zizmor # actions
-              cargo-audit # rust
             ];
           };
         };
 
-        # nix run [#...]
-        apps = pkgs.mkApps {
-          run = "cargo run";
-          test = "cargo test";
-        };
-
         # nix build [#...]
         packages = {
-          default = pkgs.rustPlatform.buildRustPackage (
+          default = pkgs.mkRustPackage (
             final: with pkgs.lib; {
               pname = "fix-hash";
               version = "0.5.3";
@@ -109,6 +109,7 @@
                 fileset = fileset.unions [
                   ./Cargo.lock
                   ./Cargo.toml
+                  ./clippy.toml
                   ./LICENSE
                   ./README.md
                   ./src
@@ -117,24 +118,35 @@
               };
               cargoLock.lockFile = ./Cargo.lock;
 
-              nativeCheckInputs = with pkgs; [
-                rustfmt
-                clippy
-              ];
+              doCheck = true;
               checkPhase = ''
-                cargo fmt --check
+                runHook preCheck
                 cargo test --offline
-                cargo clippy --offline -- -D warnings
+                runHook postCheck
               '';
+
+              # also check the dependencies for clippy, the lints run in the rust-lint flake check
+              cargoArtifactsArgs = {
+                nativeCheckInputs = with pkgs; [ clippy ];
+                doCheck = true;
+                checkPhase = ''
+                  runHook preCheck
+                  cargo test --offline
+                  cargo clippy --offline --all-targets
+                  runHook postCheck
+                '';
+              };
 
               meta = {
                 mainProgram = "fix-hash";
                 description = "Nix hash fixer";
                 license = licenses.mit;
                 platforms = platforms.all;
-                homepage = "https://github.com/spotdemo4/nix-fix-hash";
-                changelog = "https://github.com/spotdemo4/nix-fix-hash/releases/tag/v${final.version}";
-                downloadPage = "https://github.com/spotdemo4/nix-fix-hash/releases/tag/v${final.version}";
+                homepage = "https://trev.zip/llc/nix-fix-hash";
+                downloadPage = "https://trev.zip/llc/nix-fix-hash/releases";
+                changelog = "https://trev.zip/llc/nix-fix-hash/releases/tag/v${final.version}";
+                sourceProvenance = [ sourceTypes.fromSource ];
+                maintainers = [ maintainers.spotdemo4 ];
               };
             }
           );
@@ -166,10 +178,17 @@
 
         # nix flake check
         checks = pkgs.mkChecks {
-          rust = self.packages.${system}.default.overrideAttrs {
-            dontBuild = true;
-            installPhase = ''
-              touch $out
+          inherit (self.packages.${system}) default;
+
+          rust-lint = {
+            src = self.packages.${system}.default;
+            packages = with pkgs; [
+              rustfmt
+              clippy
+            ];
+            script = ''
+              cargo fmt --check
+              cargo clippy --offline --all-targets -- -D warnings
             '';
           };
 
@@ -184,18 +203,7 @@
             '';
           };
 
-          config = {
-            root = ./.;
-            filter = file: file.hasExt "json" || file.hasExt "yaml" || file.hasExt "toml" || file.hasExt "md";
-            packages = with pkgs; [
-              oxfmt
-            ];
-            script = ''
-              oxfmt --check
-            '';
-          };
-
-          actions = {
+          actions-gh = {
             root = ./.;
             files = [
               ./action.yaml
@@ -212,14 +220,44 @@
             '';
           };
 
-          renovate = {
-            root = ./.github;
-            fileset = ./.github/renovate.json;
+          actions-fj = {
+            root = ./.forgejo/workflows;
+            filter = file: file.hasExt "yaml";
+            packages = with pkgs; [
+              forgejo-runner
+              zizmor
+            ];
+            script = ''
+              forgejo-runner validate --workflow --path "$file"
+              zizmor --offline "$file"
+            '';
+          };
+
+          renovate-fj = {
+            root = ./.forgejo;
+            files = ./.forgejo/renovate.jsonc;
             packages = with pkgs; [
               renovate
             ];
             script = ''
-              renovate-config-validator renovate.json
+              renovate-config-validator renovate.jsonc
+            '';
+          };
+
+          config = {
+            root = ./.;
+            filter =
+              file:
+              file.hasExt "json"
+              || file.hasExt "jsonc"
+              || file.hasExt "yaml"
+              || file.hasExt "toml"
+              || file.hasExt "md";
+            packages = with pkgs; [
+              oxfmt
+            ];
+            script = ''
+              oxfmt --check
             '';
           };
         };

@@ -1,0 +1,24 @@
+# https://git-scm.com/docs/gitattributes
+
+# Linguist: Cargo lock file is generated
+flake.lock linguist-generated=true
+Cargo.lock linguist-generated=true
+
+# Rust source files use Rust diff driver
+*.rs text diff=rust linguist-language=Rust
+
+# Normalize line endings to LF and auto-detect text files
+* text=auto eol=lf
+
+# Shell scripts must use LF
+*.sh text eol=lf
+*.bash text eol=lf
+
+# Windows batch files require CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Do not normalize patch/diff files
+*.diff -text
+*.patch -text

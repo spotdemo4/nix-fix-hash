@@ -1,0 +1,10 @@
+// Tasks with the `create_worktree` hook run when Zed creates a new git worktree.
+// See https://zed.dev/docs/tasks#hooks
+[
+  {
+    "label": "Set up new worktree",
+    "command": "{ test -e .envrc || cp -P \"$ZED_MAIN_GIT_WORKTREE/.envrc\" .; } && { test -e .env || ! test -e \"$ZED_MAIN_GIT_WORKTREE/.env\" || cp -P \"$ZED_MAIN_GIT_WORKTREE/.env\" .; } && direnv allow && direnv exec . true",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "hooks": ["create_worktree"]
+  }
+]

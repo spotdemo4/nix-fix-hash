@@ -4,6 +4,8 @@ use std::collections::HashSet;
 use std::process::Command;
 use std::sync::LazyLock;
 
+// the pattern is a constant, so it always compiles
+#[allow(clippy::unwrap_used)]
 pub(crate) static HASH_RE: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"sha256-[A-Za-z0-9+/]{43}=?").unwrap());
 
@@ -57,7 +59,10 @@ pub(crate) fn fixed_output_derivations(args: &[String]) -> Result<Vec<Derivation
 
     let mut derivations = Vec::new();
     for (key, drv) in drvs {
-        let Some(hash) = drv["outputs"]["out"]["hash"].as_str() else {
+        let Some(hash) = drv
+            .pointer("/outputs/out/hash")
+            .and_then(serde_json::Value::as_str)
+        else {
             continue;
         };
         derivations.push(Derivation {
@@ -133,9 +138,9 @@ fn classify_realisation(succeeded: bool, expected_hash: &str, stderr: &str) -> R
         .map(|mismatch| mismatch.got.as_str())
         .collect();
 
-    if actual_hashes.is_empty() {
+    let Some(&actual_hash) = actual_hashes.iter().next() else {
         return RealisationOutcome::DependencyBlocked { mismatches };
-    }
+    };
     if actual_hashes.contains(expected_hash) {
         return hard_error(format!(
             "nix reported identical specified and actual hashes for {expected_hash}"
@@ -151,7 +156,7 @@ fn classify_realisation(succeeded: bool, expected_hash: &str, stderr: &str) -> R
     }
 
     RealisationOutcome::DirectMismatch {
-        actual_hash: (*actual_hashes.iter().next().unwrap()).to_owned(),
+        actual_hash: actual_hash.to_owned(),
     }
 }
 
@@ -238,7 +243,7 @@ mod tests {
     fn ignores_incomplete_hash_mismatches() {
         let stderr = format!("specified: {A}\nwarning: stopped early");
 
-        assert!(parse_hash_mismatches(&stderr).is_empty());
+        assert_eq!(parse_hash_mismatches(&stderr), []);
     }
 
     #[test]

@@ -1,0 +1,43 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+# yaml-language-server-disable is not allowed
+enable-openid-connect: true
+
+jobs:
+  release:
+    # zizmor: ignore[excessive-permissions]
+    runs-on: ubuntu-26.04
+    steps:
+      - name: Initialize
+        uses: spotdemo4/nix-init@c184156b02706754274a295bca8418e75ccc0ef7 # v1.76.0
+        with:
+          github_token: ${{ secrets.GH_TOKEN }}
+          niks3_url: https://niks3.trev.zip
+          token: ${{ secrets.DOCTOR_TOKEN }}
+          fetch_depth: 0
+          shell: release
+
+      - name: Release to Forgejo
+        run: flake-release
+        env:
+          GIT_TOKEN: ${{ secrets.DOCTOR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          PACKAGE_REGISTRY_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+          CONTAINER_REGISTRY_PASSWORD: ${{ secrets.PACKAGE_TOKEN }}
+          DELETE_OLD_RELEASE_ARTIFACTS: 2
+          PACKAGES: |
+            packages.x86_64-linux.default.x86_64-unknown-linux-musl
+            packages.x86_64-linux.default.aarch64-unknown-linux-musl
+            packages.x86_64-linux.default.armv7l-unknown-linux-musleabihf
+            images.x86_64-linux.default.x86_64-unknown-linux-gnu
+            images.x86_64-linux.default.aarch64-unknown-linux-gnu
+            images.x86_64-linux.default.armv7l-unknown-linux-gnueabihf

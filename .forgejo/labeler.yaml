@@ -1,0 +1,20 @@
+# https://github.com/actions/labeler
+
+actions:
+  - changed-files:
+      - any-glob-to-any-file:
+          - .github/workflows/**
+          - .forgejo/workflows/**
+
+nix:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.nix"
+          - "**/flake.lock"
+
+rust:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.rs"
+          - "**/Cargo.toml"
+          - "**/Cargo.lock"

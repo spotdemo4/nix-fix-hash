@@ -7,12 +7,13 @@ on:
 
 concurrency:
   group: release
+  cancel-in-progress: false
 
 permissions:
   contents: read
 
 jobs:
-  linux:
+  release:
     runs-on: ubuntu-26.04
     permissions:
       id-token: write
@@ -20,7 +21,7 @@ jobs:
       packages: write
     steps:
       - name: Initialize
-        uses: spotdemo4/nix-init@392955b6ae2230bd7cbb0d8d90051ddd9b8d537e # v1.75.0
+        uses: spotdemo4/nix-init@c184156b02706754274a295bca8418e75ccc0ef7 # v1.76.0
         with:
           fetch_depth: 0
           shell: release
@@ -33,36 +34,13 @@ jobs:
             packages.x86_64-linux.default.aarch64-unknown-linux-musl
             packages.x86_64-linux.default.armv7l-unknown-linux-musleabihf
             packages.x86_64-linux.default.x86_64-unknown-linux-musl
-            images.x86_64-linux.default.aarch64-unknown-linux-musl
-            images.x86_64-linux.default.x86_64-unknown-linux-musl
-
-      - name: Release to FlakeHub
-        uses: DeterminateSystems/flakehub-push@e001ee821cdb763ef120c01f1048bfb2f938bb9c # v7
-        with:
-          visibility: public
-
-  darwin:
-    runs-on: macos-26
-    permissions:
-      id-token: write
-      contents: write
-    steps:
-      - name: Initialize
-        uses: spotdemo4/nix-init@392955b6ae2230bd7cbb0d8d90051ddd9b8d537e # v1.75.0
-        with:
-          fetch_depth: 0
-          shell: release
-
-      - name: Release to GitHub
-        run: flake-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PACKAGES: |
-            packages.aarch64-darwin.default
+            images.x86_64-linux.default.aarch64-unknown-linux-gnu
+            images.x86_64-linux.default.armv7l-unknown-linux-gnueabihf
+            images.x86_64-linux.default.x86_64-unknown-linux-gnu
 
   check-action:
     name: check action
-    needs: linux
+    needs: release
     runs-on: ubuntu-26.04
     steps:
       - name: Checkout

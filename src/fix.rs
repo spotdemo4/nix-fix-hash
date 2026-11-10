@@ -212,9 +212,9 @@ fn plan_round(results: &[Realisation]) -> Result<RoundPlan, BoxError> {
                 _ => None,
             })
             .collect();
-        if direct.is_empty() {
+        let Some(&actual_hash) = direct.first() else {
             continue;
-        }
+        };
 
         if group.len() > 1 {
             let details = group
@@ -234,7 +234,6 @@ fn plan_round(results: &[Realisation]) -> Result<RoundPlan, BoxError> {
             .into());
         }
 
-        let actual_hash = direct[0];
         replacements.insert(expected_hash, actual_hash.clone());
     }
 
@@ -245,13 +244,13 @@ fn plan_round(results: &[Realisation]) -> Result<RoundPlan, BoxError> {
 }
 
 fn replace_hashes(content: &str, replacements: &IndexMap<String, String>) -> (String, usize) {
-    let mut replaced = 0;
+    let mut replaced = 0_usize;
     let content = HASH_RE
         .replace_all(content, |captures: &Captures<'_>| {
             replacements.get(&captures[0]).map_or_else(
                 || captures[0].to_owned(),
                 |replacement| {
-                    replaced += 1;
+                    replaced = replaced.saturating_add(1);
                     replacement.clone()
                 },
             )
@@ -276,12 +275,12 @@ fn validate_replacement_occurrences(
     replacements: &IndexMap<String, String>,
 ) -> Result<(), BoxError> {
     for expected_hash in replacements.keys() {
-        let mut occurrences = 0;
+        let mut occurrences = 0_usize;
         let mut locations = Vec::new();
         for file in files {
             let file_occurrences = file.content.matches(expected_hash).count();
             if file_occurrences > 0 {
-                occurrences += file_occurrences;
+                occurrences = occurrences.saturating_add(file_occurrences);
                 locations.push(format!("{} ({file_occurrences})", file.path.display()));
             }
         }
@@ -306,7 +305,9 @@ fn apply_replacements(
     let changed_files = patches.len();
 
     for patch in patches {
-        let file = &mut files[patch.index];
+        let Some(file) = files.get_mut(patch.index) else {
+            continue;
+        };
         std::fs::write(&file.path, &patch.content)?;
         file.content = patch.content;
         step("Patching", file.path.display());
@@ -317,11 +318,11 @@ fn apply_replacements(
 
 pub(crate) fn fix_hashes(cwd: &Path, args: &[String]) -> Result<(), BoxError> {
     let mut seen_states: HashMap<Vec<(String, String)>, usize> = HashMap::new();
-    let mut round = 0;
-    let mut update_rounds = 0;
+    let mut round = 0_usize;
+    let mut update_rounds = 0_usize;
 
     loop {
-        round += 1;
+        round = round.saturating_add(1);
         step("Round", round);
         step(
             "Parsing",
@@ -373,7 +374,7 @@ pub(crate) fn fix_hashes(cwd: &Path, args: &[String]) -> Result<(), BoxError> {
                     "hash fixing could not make progress: replacements changed no files".into(),
                 );
             }
-            update_rounds += 1;
+            update_rounds = update_rounds.saturating_add(1);
             continue;
         }
 

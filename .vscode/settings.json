@@ -1,43 +1,65 @@
 {
-  "editor.defaultFormatter": "oxc.oxc-vscode",
-  "editor.formatOnSave": true,
   "files.associations": {
-    "renovate.json": "jsonc",
-    ".envrc.project": "dotenv",
-    ".envrc": "dotenv"
+    ".envrc*": "shellscript"
   },
+
+  "editor.semanticHighlighting.enabled": true,
+
   "explorer.fileNesting.patterns": {
     ".envrc.project": ".envrc",
     "flake.nix": "flake.lock,treefmt.toml",
     "README.md": "*.md,LICENSE"
   },
+
   "json.schemaDownload.trustedDomains": {
-    "https://docs.renovatebot.com/": true
-  },
-  "chat.tools.terminal.autoApprove": {
-    // rust
-    "cargo build": true,
-    "cargo check": true,
-    "cargo clippy": true,
-
-    // nix
-    "nix fmt": true,
-    "nix build": true,
-    "nix flake check": true
+    "https://raw.githubusercontent.com/": true,
+    "https://docs.renovatebot.com/": true,
+    "https://opencode.ai/": true,
+    "https://models.dev/": true
   },
 
-  // rust
+  // rust-lang.rust-analyzer
+  "rust-analyzer.server.path": "rust-analyzer",
   "[rust]": {
     "editor.defaultFormatter": "rust-lang.rust-analyzer"
   },
 
-  // nix
+  // esbenp.prettier-vscode
+  "prettier.enable": false,
+
+  // oxc.oxc-vscode
+  "oxc.enable.oxfmt": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "file",
+  "[json]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "[toml]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+
+  // redhat.vscode-yaml
+  "yaml.format.enable": false,
+
+  // jnoortheen.nix-ide
   "nix.enableLanguageServer": true,
   "nix.serverPath": "nixd",
   "nix.serverSettings": {
     "nixd": {
       "nixpkgs": {
         "expr": "(builtins.getFlake (builtins.toString ./.)).outputs.nixpkgs.${builtins.currentSystem}"
+      },
+      "formatting": {
+        "command": ["nixfmt"]
       }
     }
   },

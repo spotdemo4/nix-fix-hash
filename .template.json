@@ -1,0 +1,5 @@
+{
+  "$schema": "https://trev.zip/template/rust/raw/branch/main/template.schema.json",
+  "url": "https://trev.zip/template/rust",
+  "commit": "a92da4231b6c2efcefb5ee4618b08991c6ef624f"
+}

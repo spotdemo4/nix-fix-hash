@@ -1,5 +1,8 @@
 {
   "semantic_tokens": "combined",
+  "prettier": {
+    "allowed": false
+  },
   "file_types": {
     "Shell Script": [".envrc*"]
   },
@@ -8,6 +11,9 @@
       "settings": {
         "nixpkgs": {
           "expr": "(builtins.getFlake (builtins.toString ./.)).outputs.nixpkgs.${builtins.currentSystem}"
+        },
+        "formatting": {
+          "command": ["nixfmt"]
         }
       }
     },
@@ -21,71 +27,40 @@
     }
   },
   "languages": {
+    "Rust": {
+      "format_on_save": "on",
+      "language_servers": ["rust-analyzer"],
+      "formatter": [{ "language_server": { "name": "rust-analyzer" } }]
+    },
     "JSON": {
       "format_on_save": "on",
-      "prettier": {
-        "allowed": false
-      },
-      "formatter": [
-        {
-          "language_server": {
-            "name": "oxfmt"
-          }
-        }
-      ]
+      "language_servers": ["json-language-server", "oxfmt"],
+      "formatter": [{ "language_server": { "name": "oxfmt" } }]
     },
     "JSONC": {
       "format_on_save": "on",
-      "prettier": {
-        "allowed": false
-      },
-      "formatter": [
-        {
-          "language_server": {
-            "name": "oxfmt"
-          }
-        }
-      ]
+      "language_servers": ["json-language-server", "oxfmt"],
+      "formatter": [{ "language_server": { "name": "oxfmt" } }]
     },
     "Markdown": {
       "format_on_save": "on",
-      "prettier": {
-        "allowed": false
-      },
-      "formatter": [
-        {
-          "language_server": {
-            "name": "oxfmt"
-          }
-        }
-      ]
+      "language_servers": ["oxfmt"],
+      "formatter": [{ "language_server": { "name": "oxfmt" } }]
     },
     "YAML": {
       "format_on_save": "on",
-      "prettier": {
-        "allowed": false
-      },
-      "formatter": [
-        {
-          "language_server": {
-            "name": "oxfmt"
-          }
-        }
-      ]
+      "language_servers": ["yaml-language-server", "oxfmt"],
+      "formatter": [{ "language_server": { "name": "oxfmt" } }]
     },
     "TOML": {
       "format_on_save": "on",
-      "language_servers": ["tombi"],
-      "prettier": {
-        "allowed": false
-      },
-      "formatter": [
-        {
-          "language_server": {
-            "name": "oxfmt"
-          }
-        }
-      ]
+      "language_servers": ["tombi", "oxfmt"],
+      "formatter": [{ "language_server": { "name": "oxfmt" } }]
+    },
+    "Nix": {
+      "format_on_save": "on",
+      "language_servers": ["nixd"],
+      "formatter": [{ "language_server": { "name": "nixd" } }]
     }
   }
 }

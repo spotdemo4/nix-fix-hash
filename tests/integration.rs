@@ -1,3 +1,6 @@
+// Test setup helpers panic when the filesystem fails.
+#![allow(clippy::unwrap_used)]
+
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;

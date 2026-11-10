@@ -16,29 +16,29 @@ on:
 
 concurrency:
   group: release
+  cancel-in-progress: false
 
-permissions:
-  contents: read
+# yaml-language-server-disable is not allowed
+enable-openid-connect: true
 
 jobs:
   bump:
+    # zizmor: ignore[excessive-permissions]
     runs-on: ubuntu-26.04
-    permissions:
-      id-token: write
     steps:
-      - id: init
-        name: Initialize
-        uses: spotdemo4/nix-init@392955b6ae2230bd7cbb0d8d90051ddd9b8d537e # v1.75.0
+      - name: Initialize
+        uses: spotdemo4/nix-init@c184156b02706754274a295bca8418e75ccc0ef7 # v1.76.0
         with:
-          app_id: ${{ vars.CLIENT_ID }}
-          app_key: ${{ secrets.PRIVATE_KEY }}
+          token: ${{ secrets.DOCTOR_TOKEN }}
+          github_token: ${{ secrets.GH_TOKEN }}
+          niks3_url: https://niks3.trev.zip
           fetch_depth: 0
           shell: bump
 
       - name: Bump
         run: bumper
         env:
-          GITHUB_TOKEN: ${{ steps.init.outputs.token }}
+          GITHUB_TOKEN: ${{ secrets.DOCTOR_TOKEN }}
           FORCE: ${{ inputs.force }}
           IGNORE_DIRECTORIES: tests
           PATHS: |
