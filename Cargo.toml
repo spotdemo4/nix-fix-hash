@@ -2,7 +2,7 @@
 name = "fix-hash"
 version = "0.5.4"
 edition = "2024"
-rust-version = "1.94.1"
+rust-version = "1.99.0"
 description = "Nix hash fixer"
 readme = "README.md"
 repository = "https://trev.zip/llc/nix-fix-hash"
